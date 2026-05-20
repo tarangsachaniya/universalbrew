@@ -1,23 +1,26 @@
 import { auth } from '@/lib/auth'
-import { uploadToCloudinary } from '@/lib/cloudinary'
 import { NextResponse } from 'next/server'
+import { v2 as cloudinary } from 'cloudinary'
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   const session = await auth()
   if (!session || session.user.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  try {
-    const formData = await req.formData()
-    const file = formData.get('file') as File | null
-    if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+  const folder = new URL(req.url).searchParams.get('folder') ?? 'original'
+  const timestamp = Math.round(Date.now() / 1000)
 
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const url = await uploadToCloudinary(buffer, 'original', file.type)
-    return NextResponse.json({ url })
-  } catch (err) {
-    console.error('Upload error:', err)
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
-  }
+  const signature = cloudinary.utils.api_sign_request(
+    { timestamp, folder },
+    process.env.CLOUDINARY_API_SECRET!
+  )
+
+  return NextResponse.json({
+    signature,
+    timestamp,
+    folder,
+    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+  })
 }
