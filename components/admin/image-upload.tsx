@@ -30,12 +30,30 @@ export function ImageUpload({ value, onChange, onClear, label = "Upload Image" }
     setError(null)
     setUploading(true)
     try {
+      // Get a signed upload token from the server (no file payload — bypasses Vercel size limits)
+      const signRes = await fetch("/api/upload/sign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folder: "original" }),
+      })
+      if (!signRes.ok) throw new Error("Failed to get upload signature")
+      const { signature, timestamp, cloudName, apiKey, folder } = await signRes.json()
+
+      // Upload directly to Cloudinary (client → Cloudinary, no server proxy)
       const formData = new FormData()
       formData.append("file", file)
-      const res = await fetch("/api/upload", { method: "POST", body: formData })
-      if (!res.ok) throw new Error("Upload failed")
-      const { url } = await res.json()
-      onChange(url)
+      formData.append("api_key", apiKey)
+      formData.append("timestamp", String(timestamp))
+      formData.append("signature", signature)
+      formData.append("folder", folder)
+
+      const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+        { method: "POST", body: formData }
+      )
+      if (!uploadRes.ok) throw new Error("Upload failed")
+      const { secure_url } = await uploadRes.json()
+      onChange(secure_url)
     } catch {
       setError("Upload failed. Please try again.")
     } finally {
