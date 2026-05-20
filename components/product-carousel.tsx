@@ -15,10 +15,18 @@ function isVideo(url: string) {
 
 export function ProductCarousel({ items }: { items: MediaItem[] }) {
   const [current, setCurrent] = useState(0)
+  const [paused, setPaused] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   const prev = () => setCurrent((c) => (c - 1 + items.length) % items.length)
   const next = () => setCurrent((c) => (c + 1) % items.length)
+
+  // Auto-advance every 3s — skip if paused or current slide is a video
+  useEffect(() => {
+    if (items.length <= 1 || paused || isVideo(items[current].url)) return
+    const id = setInterval(() => setCurrent((c) => (c + 1) % items.length), 3000)
+    return () => clearInterval(id)
+  }, [current, paused, items])
 
   // Autoplay video when slide becomes active
   useEffect(() => {
@@ -35,7 +43,7 @@ export function ProductCarousel({ items }: { items: MediaItem[] }) {
   return (
     <div className="space-y-3">
       {/* Main slide */}
-      <div className="relative aspect-square rounded-xl overflow-hidden bg-secondary group">
+      <div className="relative aspect-square rounded-xl overflow-hidden bg-secondary group" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
         {isVid ? (
           <video
             ref={videoRef}
