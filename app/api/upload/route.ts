@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
     const buffer = Buffer.from(await file.arrayBuffer())
-    const url = await uploadToCloudinary(buffer, 'original')
+    const url = await uploadToCloudinary(buffer, 'original', file.type)
     return NextResponse.json({ url })
   } catch (err) {
     console.error('Upload error:', err)
