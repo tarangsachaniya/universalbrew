@@ -61,7 +61,7 @@ export default async function ProductPage({
     offers: {
       '@type': 'Offer',
       priceCurrency: 'INR',
-      price: product.price.toNumber().toFixed(2),
+      price: Number(product.price).toFixed(2),
       availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       seller: { '@type': 'Organization', name: 'Universal Brew' },
     },
@@ -121,7 +121,7 @@ export default async function ProductPage({
             )}
 
             <div className="flex items-center gap-4">
-              <span className="text-3xl font-bold text-primary">₹{product.price.toNumber().toFixed(2)}</span>
+              <span className="text-3xl font-bold text-primary">₹{Number(product.price).toFixed(2)}</span>
               {product.featuredProduct && <Badge variant="secondary">Featured</Badge>}
             </div>
 
