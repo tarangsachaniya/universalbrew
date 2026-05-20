@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     signature,
     timestamp,
     folder,
-    cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY,
   })
 }
