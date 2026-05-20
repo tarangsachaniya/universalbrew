@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProductBySlug } from '@/lib/cache/products'
@@ -7,6 +6,7 @@ import { getWebPUrl } from '@/lib/cloudinary'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Package } from 'lucide-react'
+import { ProductCarousel } from '@/components/product-carousel'
 
 export async function generateMetadata({
   params,
@@ -49,15 +49,25 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug)
   if (!product || !product.published) notFound()
 
-  const featuredImg = product.featuredImage ? getWebPUrl(product.featuredImage) : null
-  const galleryImgs = product.gallery.map((url) => getWebPUrl(url, 600))
+  const isVideo = (url: string) =>
+    /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url) || url.includes('/video/')
+
+  const carouselItems = [
+    ...(product.featuredImage
+      ? [{ url: isVideo(product.featuredImage) ? product.featuredImage : getWebPUrl(product.featuredImage), alt: product.name }]
+      : []),
+    ...product.gallery.map((url, i) => ({
+      url: isVideo(url) ? url : getWebPUrl(url, 600),
+      alt: `${product.name} ${i + 2}`,
+    })),
+  ]
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
     description: product.description ?? '',
-    image: featuredImg ?? undefined,
+    image: product.featuredImage ? getWebPUrl(product.featuredImage) : undefined,
     offers: {
       '@type': 'Offer',
       priceCurrency: 'INR',
@@ -76,32 +86,13 @@ export default async function ProductPage({
         </Link>
 
         <div className="grid md:grid-cols-2 gap-12">
-          {/* Images */}
-          <div className="space-y-4">
-            {featuredImg ? (
-              <div className="aspect-square rounded-xl overflow-hidden">
-                <Image
-                  src={featuredImg}
-                  alt={product.name}
-                  width={800}
-                  height={800}
-                  className="w-full h-full object-cover"
-                  priority
-                />
-              </div>
+          {/* Media carousel */}
+          <div>
+            {carouselItems.length > 0 ? (
+              <ProductCarousel items={carouselItems} />
             ) : (
               <div className="aspect-square rounded-xl bg-secondary flex items-center justify-center">
                 <Package className="h-24 w-24 text-muted-foreground" />
-              </div>
-            )}
-
-            {galleryImgs.length > 0 && (
-              <div className="grid grid-cols-4 gap-2">
-                {galleryImgs.map((img, i) => (
-                  <div key={i} className="aspect-square rounded-lg overflow-hidden">
-                    <Image src={img} alt={`${product.name} ${i + 2}`} width={200} height={200} className="w-full h-full object-cover" />
-                  </div>
-                ))}
               </div>
             )}
           </div>
