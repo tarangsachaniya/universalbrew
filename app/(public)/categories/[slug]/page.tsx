@@ -79,7 +79,7 @@ export default async function CategoryPage({
                     </div>
                   )}
                   <h3 className="font-semibold text-foreground mb-1 truncate">{product.name}</h3>
-                  <p className="text-primary font-bold">₹{product.price.toNumber().toFixed(2)}</p>
+                  <p className="text-primary font-bold">₹{Number(product.price).toFixed(2)}</p>
                 </Link>
               )
             })}
