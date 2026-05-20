@@ -1,3 +1,4 @@
+import { NavBar } from '@/components/navbar'
 import { Hero } from '@/components/hero'
 import { About } from '@/components/about'
 import { Videos } from '@/components/videos'
@@ -17,10 +18,13 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen">
-      <Hero data={heroData} categories={categories} />
-      <About title={about.title} body={about.body} features={about.features} />
-      <Videos youtubeUrls={(heroData as any)?.youtubeUrls ?? []} />
-      <Products products={featuredProducts} />
+      <NavBar categories={categories} />
+      <Hero data={heroData} />
+      <div style={{ scrollMarginTop: "90px" }}>
+        <About title={about.title} body={about.body} features={about.features} />
+        <Videos youtubeUrls={(heroData as any)?.youtubeUrls ?? []} />
+        <Products products={featuredProducts} />
+      </div>
       <Footer data={footerData} />
     </main>
   )

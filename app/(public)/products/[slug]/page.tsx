@@ -3,10 +3,10 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProductBySlug } from '@/lib/cache/products'
 import { getWebPUrl } from '@/lib/cloudinary'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Package } from 'lucide-react'
 import { ProductCarousel } from '@/components/product-carousel'
+import { AddToCartButton } from '@/components/add-to-cart-button'
 
 export async function generateMetadata({
   params,
@@ -128,13 +128,7 @@ export default async function ProductPage({
               )}
             </div>
 
-            <Button
-              size="lg"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-              disabled={product.stock === 0}
-            >
-              {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-            </Button>
+            <AddToCartButton productId={product.id} stock={product.stock} />
 
             {product.content && (
               <div className="pt-6 border-t">

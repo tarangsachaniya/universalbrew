@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { Menu, X, ShoppingCart, Heart, ChevronDown, ChevronRight } from "lucide-react"
 import { AuthModal } from "@/components/auth-modal"
+import { CartSheet } from "@/components/cart-sheet"
+import { useCart } from "@/lib/cart-context"
 
 type Category = { id: string; name: string; slug: string; products?: { id: string; name: string; slug: string }[] }
 type SocialLinks = { facebook?: string; instagram?: string; linkedin?: string; twitter?: string }
@@ -35,10 +37,12 @@ export function Header({ socialLinks = {}, categories: initialCategories = [] }:
   const [isHero, setIsHero] = useState(true)
   const [categories, setCategories] = useState<Category[]>(initialCategories)
   const [authOpen, setAuthOpen] = useState(false)
+  const [cartOpen, setCartOpen] = useState(false)
   const [catMenuOpen, setCatMenuOpen] = useState(false)
   const [hoveredCat, setHoveredCat] = useState<string | null>(null)
   const pathname = usePathname()
   const { data: session, status } = useSession()
+  const { count } = useCart()
   const isHome = pathname === "/"
   const isAuthenticated = status === "authenticated"
   const isAdmin = session?.user?.role === "ADMIN"
@@ -82,6 +86,7 @@ export function Header({ socialLinks = {}, categories: initialCategories = [] }:
   return (
     <>
       <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
+      <CartSheet open={cartOpen} onOpenChange={setCartOpen} />
 
       <header
         className={`fixed top-0 z-50 w-full transition-all duration-500 backdrop-blur border-b border-white/10 ${
@@ -209,9 +214,17 @@ export function Header({ socialLinks = {}, categories: initialCategories = [] }:
                 <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center">0</span>
               </button>
 
-              <button className={`relative transition-colors duration-500 ${textCls}`} aria-label="Cart">
+              <button
+                className={`relative transition-colors duration-500 ${textCls}`}
+                aria-label="Cart"
+                onClick={() => setCartOpen(true)}
+              >
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center">0</span>
+                {count > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center">
+                    {count > 9 ? "9+" : count}
+                  </span>
+                )}
               </button>
 
               {isAuthenticated ? (

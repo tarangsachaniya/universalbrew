@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SessionProvider } from 'next-auth/react'
+import { CartProvider } from '@/lib/cart-context'
 import { auth } from '@/lib/auth'
 import './globals.css'
 
@@ -101,7 +102,9 @@ export default async function RootLayout({
           refetchInterval={60 * 60}
           refetchOnWindowFocus={false}
         >
-          {children}
+          <CartProvider>
+            {children}
+          </CartProvider>
         </SessionProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

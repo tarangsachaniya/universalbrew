@@ -1,17 +1,11 @@
 "use client"
 
-import { useEffect, useRef, useCallback, useState } from "react"
+import { useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
-import Link from "next/link"
-import { useSession, signOut } from "next-auth/react"
-import { ChevronDown, ChevronRight } from "lucide-react"
 import styles from "./hero.module.css"
 import { getWebPUrl } from "@/lib/cloudinary-url"
-import { AuthModal } from "@/components/auth-modal"
 
 export type HeroSlide = { url: string; title: string; subtitle: string }
-type Category = { id: string; name: string; slug: string; products?: { id: string; name: string; slug: string }[] }
-type PageLink = { id: string; title: string; slug: string }
 
 type HeroData = {
   id: string
@@ -22,8 +16,6 @@ type HeroData = {
 
 type HeroProps = {
   data?: HeroData | null
-  pages?: PageLink[]
-  categories?: Category[]
 }
 
 const DEFAULT_SUBTITLE = "An original, pure, rich-creamy & aromatic coffee with incredible taste"
@@ -46,48 +38,17 @@ function parseSlides(raw: unknown): HeroSlide[] {
   )
 }
 
-export function Hero({ data, pages = [], categories: initialCategories = [] }: HeroProps) {
+export function Hero({ data }: HeroProps) {
   const parsed = data ? parseSlides(data.slides) : []
   const slides: HeroSlide[] = parsed.length > 0
     ? parsed.map((slide) => ({ ...slide, url: getWebPUrl(slide.url) }))
     : STATIC_SLIDES
 
-  const { data: session, status } = useSession()
-  const [authOpen, setAuthOpen] = useState(false)
-  const [categories, setCategories] = useState<Category[]>(initialCategories)
-  const [catMenuOpen, setCatMenuOpen] = useState(false)
-  const [hoveredCat, setHoveredCat] = useState<string | null>(null)
   const slideRefs = useRef<(HTMLDivElement | null)[]>([])
   const cur = useRef(0)
   const transitioning = useRef(false)
   const scrollLocked = useRef(false)
   const total = slides.length
-  const isAuthenticated = status === "authenticated"
-  const isAdmin = session?.user?.role === "ADMIN"
-  const [inHero, setInHero] = useState(true)
-
-  useEffect(() => {
-    const hero = document.getElementById("home")
-    if (!hero) return
-    const observer = new IntersectionObserver(
-      ([entry]) => setInHero(entry.isIntersecting),
-      { threshold: 0, rootMargin: "-80px 0px 0px 0px" }
-    )
-    observer.observe(hero)
-    return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    setCategories(initialCategories)
-  }, [initialCategories])
-
-  useEffect(() => {
-    if (initialCategories.length > 0) return
-    fetch("/api/categories")
-      .then((r) => r.json())
-      .then((d) => Array.isArray(d) && setCategories(d))
-      .catch(() => {})
-  }, [initialCategories])
 
   const goTo = useCallback(
     (nextIdx: number) => {
@@ -183,121 +144,6 @@ export function Hero({ data, pages = [], categories: initialCategories = [] }: H
 
   return (
     <section id="home" className={styles.root}>
-      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
-
-      <nav className={styles.heroNav} style={{ opacity: inHero ? 1 : 0, pointerEvents: inHero ? "auto" : "none", transition: "opacity 0.5s" }}>
-        <div className={styles.brandMark}>
-          <div className={styles.brandName}>Universal Brew</div>
-          <div className={styles.brandSub}>The Coffee Masters</div>
-        </div>
-        <div className={styles.heroNavLinks}>
-          <a href="#home" className={styles.heroNavLink}>Home</a>
-          {categories.length > 0 && (
-            <>
-              <span className={styles.heroNavSep} aria-hidden>·</span>
-              <div
-                className="relative"
-                onMouseEnter={() => setCatMenuOpen(true)}
-                onMouseLeave={() => {
-                  setCatMenuOpen(false)
-                  setHoveredCat(null)
-                }}
-              >
-                <button className={`${styles.heroNavLink} flex items-center gap-1`}>
-                  CATEGORIES <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${catMenuOpen ? "rotate-180" : ""}`} />
-                </button>
-
-                {catMenuOpen && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-[700px]">
-                    <div className="bg-black/80 backdrop-blur-md border border-white/20 shadow-2xl w-full flex min-h-[300px] rounded-lg overflow-hidden text-left">
-                      <div className="w-1/3 bg-white/5 border-r border-white/20 py-4 flex flex-col">
-                        {categories.map((cat) => {
-                          const isActive = (hoveredCat || categories[0]?.id) === cat.id
-                          return (
-                            <Link
-                              key={cat.id}
-                              href={`/categories/${cat.slug}`}
-                              onMouseEnter={() => setHoveredCat(cat.id)}
-                              onClick={() => {
-                                setCatMenuOpen(false)
-                                setHoveredCat(null)
-                              }}
-                              className={`px-6 py-3 text-sm flex items-center justify-between transition-colors ${
-                                isActive ? "text-amber-400 bg-white/10 border-r-2 border-amber-400 font-medium" : "text-white/80 hover:text-amber-400 hover:bg-white/5"
-                              }`}
-                            >
-                              {cat.name}
-                              <ChevronRight className={`h-4 w-4 ${isActive ? "opacity-100" : "opacity-0"}`} />
-                            </Link>
-                          )
-                        })}
-                      </div>
-
-                      <div className="w-2/3 p-8 bg-transparent">
-                        {(() => {
-                          const activeCat = categories.find((cat) => cat.id === (hoveredCat || categories[0]?.id))
-                          if (!activeCat) return null
-
-                          return (
-                            <div>
-                              <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-lg font-serif font-bold text-white">{activeCat.name}</h3>
-                                <Link href={`/categories/${activeCat.slug}`} className="text-xs font-medium text-amber-400 hover:underline">
-                                  View Category
-                                </Link>
-                              </div>
-                              {activeCat.products && activeCat.products.length > 0 ? (
-                                <div className="grid grid-cols-2 gap-4">
-                                  {activeCat.products.map((product) => (
-                                    <Link key={product.id} href={`/products/${product.slug}`} className="text-sm text-white/70 hover:text-amber-400 hover:underline transition-colors truncate">
-                                      {product.name}
-                                    </Link>
-                                  ))}
-                                </div>
-                              ) : (
-                                <p className="text-sm text-white/50">No products found in this category.</p>
-                              )}
-                            </div>
-                          )
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-
-          {pages.map((page) => (
-            <div key={page.id} className="flex items-center">
-              <span className={styles.heroNavSep} aria-hidden>·</span>
-              <Link href={`/pages/${page.slug}`} className={styles.heroNavLink}>
-                {page.title.toUpperCase()}
-              </Link>
-            </div>
-          ))}
-
-          <span className={styles.heroNavSep} aria-hidden>·</span>
-          {isAuthenticated ? (
-            <>
-              {isAdmin && (
-                <>
-                  <Link href="/admin" className={styles.heroNavLink}>Admin</Link>
-                  <span className={styles.heroNavSep} aria-hidden>·</span>
-                </>
-              )}
-              <button onClick={() => signOut({ callbackUrl: "/" })} className={styles.heroNavBtn}>
-                Sign Out
-              </button>
-            </>
-          ) : (
-            <button onClick={() => setAuthOpen(true)} className={`${styles.heroNavBtn} ${styles.heroNavBtnOutline}`}>
-              Login / Sign Up
-            </button>
-          )}
-        </div>
-      </nav>
-
       {slides.map((slide, index) => (
         <div
           key={index}
