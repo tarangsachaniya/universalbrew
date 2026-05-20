@@ -31,11 +31,7 @@ export function ImageUpload({ value, onChange, onClear, label = "Upload Image" }
     setUploading(true)
     try {
       // Get a signed upload token from the server (no file payload — bypasses Vercel size limits)
-      const signRes = await fetch("/api/upload/sign", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folder: "original" }),
-      })
+      const signRes = await fetch("/api/upload/sign?folder=original")
       if (!signRes.ok) throw new Error("Failed to get upload signature")
       const { signature, timestamp, cloudName, apiKey, folder } = await signRes.json()
 
