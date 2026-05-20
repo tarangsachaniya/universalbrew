@@ -93,7 +93,7 @@ export default async function ProductsPage({
                   {product.description && (
                     <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
                   )}
-                  <p className="text-primary font-bold">₹{product.price.toNumber().toFixed(2)}</p>
+                  <p className="text-primary font-bold">₹{Number(product.price).toFixed(2)}</p>
                 </Link>
               )
             })}
