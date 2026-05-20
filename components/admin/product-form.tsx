@@ -177,24 +177,31 @@ export function ProductForm({ initialData, mode, categories }: ProductFormProps)
       </div>
 
       <div className="space-y-3">
-        <Label>Gallery Images</Label>
+        <Label>Gallery Media</Label>
         <div className="flex flex-wrap gap-3">
-          {galleryUrls.map((url, idx) => (
-            <div key={idx} className="relative">
-              <img src={url} alt={`Gallery ${idx + 1}`} className="w-20 h-20 object-cover rounded-lg border" />
-              <button
-                type="button"
-                onClick={() => removeGalleryImage(idx)}
-                className="absolute -top-1 -right-1 h-5 w-5 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center"
-              >
-                ×
-              </button>
-            </div>
-          ))}
+          {galleryUrls.map((url, idx) => {
+            const isVid = /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url) || url.includes('/video/')
+            return (
+              <div key={idx} className="relative">
+                {isVid ? (
+                  <video src={url} className="w-20 h-20 object-cover rounded-lg border" muted playsInline />
+                ) : (
+                  <img src={url} alt={`Gallery ${idx + 1}`} className="w-20 h-20 object-cover rounded-lg border" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeGalleryImage(idx)}
+                  className="absolute -top-1 -right-1 h-5 w-5 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+            )
+          })}
         </div>
         <ImageUpload
           onChange={addGalleryImage}
-          label="Add Gallery Image"
+          label="Add Gallery Media"
         />
       </div>
 
