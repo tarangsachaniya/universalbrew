@@ -9,8 +9,8 @@ import { productSchema, type ProductInput } from "@/lib/validations/product"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ImageUpload } from "@/components/admin/image-upload"
 
@@ -110,13 +110,21 @@ export function ProductForm({ initialData, mode, categories }: ProductFormProps)
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Short Description</Label>
-        <Textarea id="description" {...register("description")} rows={2} placeholder="Brief product description" />
+        <Label>Short Description</Label>
+        <RichTextEditor
+          value={watch("description") ?? ""}
+          onChange={(html) => setValue("description", html)}
+          placeholder="Brief product description"
+        />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="content">Full Content</Label>
-        <Textarea id="content" {...register("content")} rows={6} placeholder="Detailed product content (Markdown supported)" />
+        <Label>Full Content</Label>
+        <RichTextEditor
+          value={watch("content") ?? ""}
+          onChange={(html) => setValue("content", html)}
+          placeholder="Detailed product content"
+        />
       </div>
 
       <div className="grid grid-cols-3 gap-4">

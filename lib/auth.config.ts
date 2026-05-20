@@ -5,7 +5,11 @@ const authConfig = {
     signIn: '/',
     error: '/',
   },
-  session: { strategy: 'jwt' },
+  session: {
+    strategy: 'jwt',
+    maxAge:    7 * 24 * 60 * 60, // 7 days
+    updateAge: 60 * 60,          // re-issue JWT at most once per hour
+  },
   callbacks: {
     jwt({ token, user }) {
       if (user) {

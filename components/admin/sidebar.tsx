@@ -27,7 +27,7 @@ const navItems = [
   { href: "/admin/products",   label: "Products",   icon: Package          },
   { href: "/admin/categories", label: "Categories", icon: Tag              },
   { href: "/admin/heroes",     label: "Hero Slides", icon: ImagePlay       },
-  { href: "/admin/pages",      label: "Pages",      icon: BookOpen         },
+  { href: "/admin/static-pages", label: "Static Pages", icon: BookOpen       },
   { href: "/admin/footer",     label: "Footer",     icon: FileText         },
 ]
 

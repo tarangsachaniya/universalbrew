@@ -1,5 +1,5 @@
 import { unstable_cache } from 'next/cache'
-import { db, prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 
 export const getActiveHero = unstable_cache(
   async () => {
@@ -36,7 +36,7 @@ export const getNavigationCategories = unstable_cache(
 
 export const getHomepageData = unstable_cache(
   async () => {
-    const [hero, featuredProductsRaw, footer, headerPages, footerPages, categories] = await Promise.all([
+    const [hero, featuredProductsRaw, footer, categories] = await Promise.all([
       prisma.homepageHero.findFirst({
         where: { active: true },
         orderBy: { updatedAt: 'desc' },
@@ -47,16 +47,6 @@ export const getHomepageData = unstable_cache(
         orderBy: { createdAt: 'desc' },
       }),
       prisma.footerContent.findFirst(),
-      db.page.findMany({
-        where: { published: true, showIn: { in: ['HEADER', 'BOTH'] } },
-        select: { id: true, title: true, slug: true },
-        orderBy: { createdAt: 'asc' },
-      }) as Promise<{ id: string; title: string; slug: string }[]>,
-      db.page.findMany({
-        where: { published: true, showIn: { in: ['FOOTER', 'BOTH'] } },
-        select: { id: true, title: true, slug: true },
-        orderBy: { createdAt: 'asc' },
-      }) as Promise<{ id: string; title: string; slug: string }[]>,
       prisma.category.findMany({
         orderBy: { name: 'asc' },
         include: {
@@ -78,8 +68,8 @@ export const getHomepageData = unstable_cache(
       hero,
       featuredProducts,
       footer,
-      headerPages,
-      footerPages,
+      headerPages: [],
+      footerPages: [],
       categories,
     }
   },

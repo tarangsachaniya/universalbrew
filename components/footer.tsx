@@ -19,12 +19,17 @@ type FooterData = {
   socialLinks?: unknown
 }
 
-type PageLink = { id: string; title: string; slug: string }
-
 type FooterProps = {
   data?: FooterData | null
-  pages?: PageLink[]
 }
+
+const staticLinks = [
+  { href: "/about-us",         label: "About Us" },
+  { href: "/terms-of-service", label: "Terms of Service" },
+  { href: "/privacy-policy",   label: "Privacy Policy" },
+  { href: "/refund-policy",    label: "Refund Policy" },
+  { href: "/shipping-policy",  label: "Shipping Policy" },
+]
 
 function SocialIcon({ label }: { label: string }) {
   const icons: Record<string, string> = {
@@ -41,7 +46,7 @@ function SocialIcon({ label }: { label: string }) {
   )
 }
 
-export function Footer({ data, pages = [] }: FooterProps) {
+export function Footer({ data }: FooterProps) {
   const companyName = data?.companyName ?? "Khyati & Sons Enterprise"
   const social = (data?.socialLinks ?? {}) as SocialLinks
   const hasSocial = social.facebook || social.instagram || social.linkedin || social.twitter
@@ -87,30 +92,28 @@ export function Footer({ data, pages = [] }: FooterProps) {
         </div>
       )}
 
-      {/* Footer Links — dynamic pages only */}
-      {pages.length > 0 && (
-        <div className="py-6">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
-              {pages.map((page, i) => (
-                <>
-                  {i > 0 && <span key={`sep-${i}`} className="text-border">|</span>}
-                  <Link
-                    key={page.id}
-                    href={`/pages/${page.slug}`}
-                    className="hover:text-primary transition-colors"
-                  >
-                    {page.title}
-                  </Link>
-                </>
-              ))}
-            </div>
+      {/* Static Page Links */}
+      <div className="py-6 border-b border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
+            {staticLinks.map((link, i) => (
+              <>
+                {i > 0 && <span key={`sep-${i}`} className="text-border">|</span>}
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="hover:text-primary transition-colors"
+                >
+                  {link.label}
+                </Link>
+              </>
+            ))}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Copyright */}
-      <div className="py-4 border-t border-border">
+      <div className="py-4">
         <div className="container mx-auto px-4">
           <p className="text-center text-sm text-muted-foreground">
             Copyright © {new Date().getFullYear()}, {companyName}. All Rights Reserved.

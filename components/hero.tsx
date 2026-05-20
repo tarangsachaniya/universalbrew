@@ -64,6 +64,18 @@ export function Hero({ data, pages = [], categories: initialCategories = [] }: H
   const total = slides.length
   const isAuthenticated = status === "authenticated"
   const isAdmin = session?.user?.role === "ADMIN"
+  const [inHero, setInHero] = useState(true)
+
+  useEffect(() => {
+    const hero = document.getElementById("home")
+    if (!hero) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setInHero(entry.isIntersecting),
+      { threshold: 0, rootMargin: "-80px 0px 0px 0px" }
+    )
+    observer.observe(hero)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     setCategories(initialCategories)
@@ -173,7 +185,7 @@ export function Hero({ data, pages = [], categories: initialCategories = [] }: H
     <section id="home" className={styles.root}>
       <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
 
-      <nav className={styles.heroNav}>
+      <nav className={styles.heroNav} style={{ opacity: inHero ? 1 : 0, pointerEvents: inHero ? "auto" : "none", transition: "opacity 0.5s" }}>
         <div className={styles.brandMark}>
           <div className={styles.brandName}>Universal Brew</div>
           <div className={styles.brandSub}>The Coffee Masters</div>

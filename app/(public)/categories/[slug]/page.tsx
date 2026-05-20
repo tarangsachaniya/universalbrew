@@ -47,7 +47,10 @@ export default async function CategoryPage({
           )}
           <h1 className="text-4xl font-serif text-primary mb-3">{category.name}</h1>
           {category.description && (
-            <p className="text-muted-foreground max-w-2xl leading-relaxed">{category.description}</p>
+            <div
+              className="prose prose-sm prose-amber max-w-2xl text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: category.description }}
+            />
           )}
         </div>
 

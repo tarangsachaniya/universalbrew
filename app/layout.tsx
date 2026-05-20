@@ -96,7 +96,11 @@ export default async function RootLayout({
   return (
     <html lang="en" className="bg-background">
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
-        <SessionProvider session={session}>
+        <SessionProvider
+          session={session}
+          refetchInterval={60 * 60}
+          refetchOnWindowFocus={false}
+        >
           {children}
         </SessionProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}

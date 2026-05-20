@@ -1,15 +1,12 @@
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { getFooterContent, getNavigationCategories } from '@/lib/cache/homepage'
-import { getPagesByLocation } from '@/lib/cache/pages'
 
 type SocialLinks = { facebook?: string; instagram?: string; linkedin?: string; twitter?: string }
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const [footerData, headerPages, footerPages, categories] = await Promise.all([
+  const [footerData, categories] = await Promise.all([
     getFooterContent(),
-    getPagesByLocation('HEADER'),
-    getPagesByLocation('FOOTER'),
     getNavigationCategories(),
   ])
 
@@ -17,9 +14,9 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <>
-      <Header pages={headerPages} socialLinks={socialLinks} categories={categories} />
+      <Header socialLinks={socialLinks} categories={categories} />
       {children}
-      <Footer data={footerData} pages={footerPages} />
+      <Footer data={footerData} />
     </>
   )
 }

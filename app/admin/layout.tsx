@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <SidebarTrigger />
           <span className="text-sm text-muted-foreground">Admin Panel</span>
         </header>
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto p-4 sm:p-6">
           {children}
         </main>
       </div>

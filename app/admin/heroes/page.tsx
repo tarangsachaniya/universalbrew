@@ -10,7 +10,7 @@ export default async function AdminHeroesPage() {
 
   if (!hero) {
     return (
-      <div className="p-4 sm:p-6 space-y-6">
+      <div className="space-y-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold">Homepage Hero</h1>
           <p className="text-sm text-muted-foreground mt-1">No homepage hero record is available yet.</p>
@@ -24,7 +24,7 @@ export default async function AdminHeroesPage() {
   const slides: HeroSlide[] = Array.isArray(raw.slides) ? raw.slides : []
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-xl sm:text-2xl font-bold">Homepage Hero</h1>
         <p className="text-sm text-muted-foreground mt-1">

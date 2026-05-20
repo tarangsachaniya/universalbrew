@@ -8,11 +8,9 @@ import { Menu, X, ShoppingCart, Heart, ChevronDown, ChevronRight } from "lucide-
 import { AuthModal } from "@/components/auth-modal"
 
 type Category = { id: string; name: string; slug: string; products?: { id: string; name: string; slug: string }[] }
-type PageLink = { id: string; title: string; slug: string }
 type SocialLinks = { facebook?: string; instagram?: string; linkedin?: string; twitter?: string }
 
 type HeaderProps = {
-  pages?: PageLink[]
   socialLinks?: SocialLinks
   categories?: Category[]
 }
@@ -32,7 +30,7 @@ function SocialIcon({ label }: { label: string }) {
   )
 }
 
-export function Header({ pages = [], socialLinks = {}, categories: initialCategories = [] }: HeaderProps) {
+export function Header({ socialLinks = {}, categories: initialCategories = [] }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isHero, setIsHero] = useState(true)
   const [categories, setCategories] = useState<Category[]>(initialCategories)
@@ -58,20 +56,24 @@ export function Header({ pages = [], socialLinks = {}, categories: initialCatego
   }, [initialCategories])
 
   useEffect(() => {
-    const onScroll = () => {
-      const hero = document.getElementById("home")
-      setIsHero(hero ? hero.getBoundingClientRect().bottom > 80 : false)
-    }
     if (!isHome) {
       setIsHero(false)
       return
     }
-    window.addEventListener("scroll", onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener("scroll", onScroll)
+    const hero = document.getElementById("home")
+    if (!hero) {
+      setIsHero(false)
+      return
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsHero(entry.isIntersecting),
+      { threshold: 0, rootMargin: "-80px 0px 0px 0px" }
+    )
+    observer.observe(hero)
+    return () => observer.disconnect()
   }, [isHome])
 
-  const textCls = isHero ? "text-white/80 hover:text-amber-300" : "text-foreground/80 hover:text-primary"
+  const textCls = isHero ? "text-white/80 hover:text-amber-300" : "text-white/70 hover:text-amber-300"
   const homeLinks = [{ href: "#home", label: "HOME" }]
   const otherLinks = [{ href: "/", label: "HOME" }]
   const navLinks = isHome ? homeLinks : otherLinks
@@ -81,17 +83,20 @@ export function Header({ pages = [], socialLinks = {}, categories: initialCatego
     <>
       <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
 
-      <header className={`fixed top-0 z-50 w-full transition-all duration-500 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border ${
-        isHero ? "opacity-0 pointer-events-none -translate-y-full" : "opacity-100 translate-y-0"
-      }`}>
+      <header
+        className={`fixed top-0 z-50 w-full transition-all duration-500 backdrop-blur border-b border-white/10 ${
+          isHero ? "opacity-0 pointer-events-none -translate-y-full" : "opacity-100 translate-y-0"
+        }`}
+        style={{ backgroundColor: "rgba(20, 12, 6, 0.95)" }}
+      >
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between gap-4">
             <Link href="/" className="shrink-0">
               <div className="flex flex-col items-center">
-                <span className={`text-xl sm:text-2xl font-bold font-serif tracking-tight transition-colors duration-500 ${isHero ? "text-amber-300" : "text-primary"}`}>
+                <span className="text-xl sm:text-2xl font-bold font-serif tracking-tight transition-colors duration-500 text-amber-300">
                   Universal Brew
                 </span>
-                <span className={`text-[9px] tracking-[0.2em] uppercase transition-colors duration-500 ${isHero ? "text-white/50" : "text-muted-foreground"}`}>
+                <span className="text-[9px] tracking-[0.2em] uppercase transition-colors duration-500 text-white/50">
                   The Coffee Masters
                 </span>
               </div>
@@ -177,16 +182,11 @@ export function Header({ pages = [], socialLinks = {}, categories: initialCatego
                 </div>
               )}
 
-              {pages.map((page) => (
-                <Link key={page.id} href={`/pages/${page.slug}`} className={`text-sm font-medium transition-colors duration-500 ${textCls}`}>
-                  {page.title.toUpperCase()}
-                </Link>
-              ))}
             </nav>
 
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               {hasSocial && (
-                <div className={`hidden lg:flex items-center gap-2 transition-colors duration-500 ${isHero ? "text-white/50" : "text-muted-foreground"}`}>
+                <div className="hidden lg:flex items-center gap-2 transition-colors duration-500 text-white/50">
                   {(["facebook", "instagram", "linkedin", "twitter"] as const).map((key) =>
                     socialLinks[key] ? (
                       <Link
@@ -233,7 +233,7 @@ export function Header({ pages = [], socialLinks = {}, categories: initialCatego
 
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className={`md:hidden transition-colors duration-500 ${isHero ? "text-white" : "text-foreground"}`}
+                className="md:hidden transition-colors duration-500 text-white"
                 aria-label="Toggle menu"
               >
                 {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -242,7 +242,7 @@ export function Header({ pages = [], socialLinks = {}, categories: initialCatego
           </div>
 
           {isMenuOpen && (
-            <nav className={`md:hidden py-4 border-t ${isHero ? "border-white/10" : "border-border"}`}>
+            <nav className="md:hidden py-4 border-t border-white/10">
               <div className="flex flex-col gap-3">
                 {navLinks.map((link) => (
                   <Link key={link.href} href={link.href} className={`text-sm font-medium ${textCls}`} onClick={() => setIsMenuOpen(false)}>
@@ -255,11 +255,6 @@ export function Header({ pages = [], socialLinks = {}, categories: initialCatego
                 {categories.map((cat) => (
                   <Link key={cat.id} href={`/categories/${cat.slug}`} className={`text-sm font-medium pl-4 ${textCls}`} onClick={() => setIsMenuOpen(false)}>
                     {cat.name}
-                  </Link>
-                ))}
-                {pages.map((page) => (
-                  <Link key={page.id} href={`/pages/${page.slug}`} className={`text-sm font-medium ${textCls}`} onClick={() => setIsMenuOpen(false)}>
-                    {page.title.toUpperCase()}
                   </Link>
                 ))}
                 {hasSocial && (

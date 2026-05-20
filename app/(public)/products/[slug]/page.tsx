@@ -108,7 +108,10 @@ export default async function ProductPage({
             <h1 className="text-3xl md:text-4xl font-serif text-foreground">{product.name}</h1>
 
             {product.description && (
-              <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+              <div
+                className="prose prose-sm prose-amber max-w-none text-muted-foreground"
+                dangerouslySetInnerHTML={{ __html: product.description }}
+              />
             )}
 
             <div className="flex items-center gap-4">
@@ -136,9 +139,10 @@ export default async function ProductPage({
             {product.content && (
               <div className="pt-6 border-t">
                 <h2 className="text-lg font-semibold mb-3">About this product</h2>
-                <div className="prose prose-sm text-muted-foreground whitespace-pre-wrap">
-                  {product.content}
-                </div>
+                <div
+                  className="prose prose-sm prose-amber max-w-none text-muted-foreground"
+                  dangerouslySetInnerHTML={{ __html: product.content }}
+                />
               </div>
             )}
           </div>

@@ -104,11 +104,11 @@
 
 /* ── Hero overlay navbar ── */
 .heroNav {
-  position: absolute;
+  position: fixed;
   top: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 20;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;

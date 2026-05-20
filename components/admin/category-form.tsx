@@ -9,8 +9,8 @@ import { categorySchema, type CategoryInput } from "@/lib/validations/category"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { ImageUpload } from "@/components/admin/image-upload"
+import { RichTextEditor } from "@/components/admin/rich-text-editor"
 
 type CategoryFormProps = {
   initialData?: CategoryInput & { id?: string; slug?: string }
@@ -81,8 +81,12 @@ export function CategoryForm({ initialData, mode }: CategoryFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea id="description" {...register("description")} rows={3} placeholder="Optional description" />
+        <Label>Description</Label>
+        <RichTextEditor
+          value={watch("description") ?? ""}
+          onChange={(html) => setValue("description", html)}
+          placeholder="Optional description"
+        />
       </div>
 
       <div className="space-y-2">

@@ -44,6 +44,7 @@
   --coffee-light: oklch(0.55 0.1 55);
   --cream: oklch(0.95 0.02 85);
   --gold: oklch(0.75 0.15 85);
+  --espresso: oklch(0.14 0.02 50);
 }
 
 .dark {
@@ -125,6 +126,7 @@
   --color-coffee-light: var(--coffee-light);
   --color-cream: var(--cream);
   --color-gold: var(--gold);
+  --color-espresso: var(--espresso);
 }
 
 @layer base {

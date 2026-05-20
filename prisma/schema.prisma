@@ -74,22 +74,19 @@ model HomepageHero {
   updatedAt      DateTime @updatedAt
 }
 
-enum PageLocation {
-  HEADER
-  FOOTER
-  BOTH
-  NONE
+enum StaticPageKey {
+  ABOUT_US
+  TERMS_OF_SERVICE
+  PRIVACY_POLICY
+  REFUND_POLICY
+  SHIPPING_POLICY
 }
 
-model Page {
-  id        String       @id @default(cuid())
+model StaticPage {
+  key       StaticPageKey @id
   title     String
-  slug      String       @unique
-  content   String?      @db.Text
-  showIn    PageLocation @default(NONE)
-  published Boolean      @default(false)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  content   String?       @db.Text
+  updatedAt DateTime      @updatedAt
 }
 
 model FooterContent {

@@ -14,9 +14,9 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`
 
   await transporter.sendMail({
-    from: `"Brew & Co." <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+    from: `"Universal Brew" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
     to: email,
-    subject: 'Reset Your Password — Brew & Co.',
+    subject: 'Reset Your Password — Universal Brew',
     html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -33,10 +33,13 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 
           <!-- Header -->
           <tr>
-            <td style="background-color:#3d1f0d;padding:36px 48px;text-align:center;">
-              <h1 style="margin:0;color:#f5e6d3;font-size:28px;letter-spacing:2px;font-family:'Georgia',serif;">
-                ☕ Brew &amp; Co.
+            <td style="background-color:#1A0900;padding:36px 48px;text-align:center;">
+              <h1 style="margin:0;color:#DAA830;font-size:28px;font-weight:bold;letter-spacing:-0.5px;font-family:Georgia,serif;">
+                Universal Brew
               </h1>
+              <p style="margin:6px 0 0;color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
+                The Coffee Masters
+              </p>
             </td>
           </tr>
 
@@ -52,21 +55,14 @@ export async function sendPasswordResetEmail(email: string, token: string) {
               <!-- CTA Button -->
               <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
                 <tr>
-                  <td style="background-color:#3d1f0d;border-radius:8px;padding:14px 32px;">
+                  <td style="background-color:#1A0900;border-radius:8px;padding:14px 32px;">
                     <a href="${resetUrl}"
-                       style="color:#f5e6d3;font-size:15px;font-weight:bold;text-decoration:none;font-family:Arial,sans-serif;letter-spacing:0.5px;">
+                       style="color:#DAA830;font-size:15px;font-weight:bold;text-decoration:none;font-family:Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;">
                       Reset My Password
                     </a>
                   </td>
                 </tr>
               </table>
-
-              <p style="margin:0 0 8px;font-size:13px;color:#9b7b6b;">
-                If the button doesn't work, copy and paste this URL into your browser:
-              </p>
-              <p style="margin:0 0 32px;font-size:12px;color:#b89880;word-break:break-all;">
-                ${resetUrl}
-              </p>
 
               <hr style="border:none;border-top:1px solid #f0e6dc;margin:0 0 24px;" />
 
@@ -81,7 +77,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
           <tr>
             <td style="background-color:#f5ece4;padding:24px 48px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#b89880;font-family:Arial,sans-serif;">
-                &copy; ${new Date().getFullYear()} Brew &amp; Co. &nbsp;|&nbsp; Crafted with love and coffee
+                &copy; ${new Date().getFullYear()} Universal Brew &nbsp;|&nbsp; The Coffee Masters
               </p>
             </td>
           </tr>
