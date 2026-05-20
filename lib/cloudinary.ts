@@ -11,14 +11,25 @@ export { getWebPUrl, getThumbUrl } from './cloudinary-url'
 
 export async function uploadToCloudinary(
   fileBuffer: Buffer,
-  folder: string = 'original'
+  folder: string = 'original',
+  mimeType?: string
 ): Promise<string> {
+  const isVideo = mimeType?.startsWith('video/')
   return new Promise((resolve, reject) => {
     cloudinary.uploader
-      .upload_stream({ folder, resource_type: 'image', format: 'webp', transformation: { quality: 'auto' } }, (error, result) => {
-        if (error || !result) return reject(error ?? new Error('Upload failed'))
-        resolve(result.secure_url)
-      })
+      .upload_stream(
+        {
+          folder,
+          resource_type: 'auto',
+          ...(isVideo
+            ? {}
+            : { format: 'webp', transformation: { quality: 'auto' } }),
+        },
+        (error, result) => {
+          if (error || !result) return reject(error ?? new Error('Upload failed'))
+          resolve(result.secure_url)
+        }
+      )
       .end(fileBuffer)
   })
 }
