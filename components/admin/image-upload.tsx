@@ -13,14 +13,18 @@ type ImageUploadProps = {
   label?: string
 }
 
+function isVideo(url: string) {
+  return /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url) || url.includes('/video/')
+}
+
 export function ImageUpload({ value, onChange, onClear, label = "Upload Image" }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleFile = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      setError("Please select an image file")
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+      setError("Please select an image or video file")
       return
     }
     setError(null)
@@ -45,19 +49,31 @@ export function ImageUpload({ value, onChange, onClear, label = "Upload Image" }
     if (file) handleFile(file)
   }
 
-  const preview = value ? getWebPUrl(value, 400) : null
+  const preview = value || null
+  const videoPreview = preview && isVideo(preview)
+  const imagePreview = preview && !videoPreview ? getWebPUrl(preview, 400) : null
 
   return (
     <div className="space-y-2">
       {preview ? (
         <div className="relative inline-block">
-          <Image
-            src={preview}
-            alt="Preview"
-            width={200}
-            height={200}
-            className="rounded-lg object-cover border"
-          />
+          {videoPreview ? (
+            <video
+              src={preview}
+              className="w-[200px] h-[200px] rounded-lg object-cover border"
+              muted
+              playsInline
+              controls
+            />
+          ) : (
+            <Image
+              src={imagePreview!}
+              alt="Preview"
+              width={200}
+              height={200}
+              className="rounded-lg object-cover border"
+            />
+          )}
           <button
             type="button"
             onClick={() => { onClear?.(); onChange("") }}
@@ -81,7 +97,7 @@ export function ImageUpload({ value, onChange, onClear, label = "Upload Image" }
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/*"
         className="hidden"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
       />
