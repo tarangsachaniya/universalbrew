@@ -26,7 +26,7 @@ export default function AdminProductsPage() {
 
   const fetchProducts = (p: number) => {
     setLoading(true)
-    fetch(`/api/products?page=${p}&limit=20`)
+    fetch(`/api/admin/products?page=${p}&limit=20`)
       .then((r) => r.json())
       .then((data) => {
         setProducts(data.items ?? [])
