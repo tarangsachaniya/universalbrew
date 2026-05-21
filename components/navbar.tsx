@@ -72,7 +72,7 @@ export function NavBar({ categories: initialCategories = [] }: NavBarProps) {
           <div style={{ fontFamily: "Georgia, serif", fontSize: "clamp(1.2rem, 2.5vw, 1.7rem)", fontWeight: 700, letterSpacing: "0.02em", color: "rgba(255,218,128,0.95)", textShadow: "0 0 40px rgba(200,140,50,0.35)", lineHeight: 1.1 }}>
             Universal Brew
           </div>
-          <div style={{ fontSize: "0.6rem", letterSpacing: "0.22em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginTop: "2px" }}>
+          <div style={{ fontSize: "0.6rem", letterSpacing: "0.22em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginTop: "2px", textAlign: "center" }}>
             The Coffee Masters
           </div>
         </Link>

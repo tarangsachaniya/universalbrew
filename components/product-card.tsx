@@ -55,8 +55,8 @@ export function ProductCard({ id, name, slug, price, featuredImage, stock, descr
           ) : null}
         </div>
 
-        {/* Hover CTA overlay */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-20 p-3 bg-gradient-to-t from-black/80 to-black/20 flex flex-col gap-2">
+        {/* CTA overlay — visible on hover (desktop) or always (touch) */}
+        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 [@media(hover:none)]:translate-y-0 transition-transform duration-300 z-20 p-3 bg-gradient-to-t from-black/80 to-black/20 flex flex-col gap-2">
           <AddToCartButton
             productId={id}
             stock={stock}

@@ -1,19 +1,21 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { DM_Sans, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SessionProvider } from 'next-auth/react'
 import { CartProvider } from '@/lib/cart-context'
 import { auth } from '@/lib/auth'
 import './globals.css'
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: '--font-inter'
+  variable: '--font-inter',
+  weight: ['300', '400', '500', '600', '700'],
 })
 
-const playfair = Playfair_Display({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  variable: '--font-playfair'
+  variable: '--font-playfair',
+  weight: ['300', '400', '500', '600', '700'],
 })
 
 export const viewport: Viewport = {
@@ -96,7 +98,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="bg-background">
-      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
+      <body className={`${dmSans.variable} ${cormorant.variable} font-sans antialiased`}>
         <SessionProvider
           session={session}
           refetchInterval={60 * 60}
