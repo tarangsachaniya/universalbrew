@@ -111,6 +111,29 @@ export function HeroSlidesForm({ initialData, mode }: HeroSlidesFormProps) {
                     </div>
                   </div>
 
+                  {/* Mobile image upload */}
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Mobile Image (9:16 portrait) — optional</Label>
+                    {slide.mobileUrl ? (
+                      <div className="flex items-center gap-2">
+                        <div className="relative w-16 aspect-[9/16] rounded overflow-hidden border bg-muted shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={getWebPUrl(slide.mobileUrl, 120)} alt="mobile preview" className="w-full h-full object-cover" />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => updateSlide(idx, "mobileUrl" as keyof HeroSlide, "")}
+                          className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <ImageUpload onChange={(url) => updateSlide(idx, "mobileUrl" as keyof HeroSlide, url)} label="Add Mobile Image" />
+                    )}
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs">Slide Title</Label>

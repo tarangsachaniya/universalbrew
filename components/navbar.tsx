@@ -7,6 +7,7 @@ import { useSession, signOut } from "next-auth/react"
 import { ChevronDown, ChevronRight, Menu, X, ShoppingCart } from "lucide-react"
 import { AuthModal } from "@/components/auth-modal"
 import { CartSheet } from "@/components/cart-sheet"
+import { UserDropdown } from "@/components/user-dropdown"
 import { useCart } from "@/lib/cart-context"
 
 type Category = { id: string; name: string; slug: string; products?: { id: string; name: string; slug: string }[] }
@@ -151,17 +152,7 @@ export function NavBar({ categories: initialCategories = [] }: NavBarProps) {
 
           <span className={sepCls}>·</span>
           {isAuthenticated ? (
-            <>
-              {isAdmin && (
-                <>
-                  <Link href="/admin" className={linkCls}>Admin</Link>
-                  <span className={sepCls}>·</span>
-                </>
-              )}
-              <button onClick={() => signOut({ callbackUrl: "/" })} className={`${linkCls} bg-transparent border-none cursor-pointer p-0`}>
-                Sign Out
-              </button>
-            </>
+            <UserDropdown name={session?.user?.name} isAdmin={isAdmin} />
           ) : (
             <button
               onClick={() => setAuthOpen(true)}
@@ -226,11 +217,13 @@ export function NavBar({ categories: initialCategories = [] }: NavBarProps) {
               {cat.name}
             </Link>
           ))}
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "0.75rem" }}>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "0.75rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             {isAuthenticated ? (
               <>
-                {isAdmin && <Link href="/admin" className={linkCls} onClick={() => setMobileOpen(false)}>Admin</Link>}
-                <button onClick={() => { setMobileOpen(false); signOut({ callbackUrl: "/" }) }} className={`${linkCls} bg-transparent border-none cursor-pointer p-0 block mt-2`}>
+                {isAdmin && <Link href="/admin" className={linkCls} onClick={() => setMobileOpen(false)}>Admin Panel</Link>}
+                <Link href="/account/profile" className={linkCls} onClick={() => setMobileOpen(false)}>My Profile</Link>
+                <Link href="/account/orders" className={linkCls} onClick={() => setMobileOpen(false)}>My Orders</Link>
+                <button onClick={() => { setMobileOpen(false); signOut({ callbackUrl: "/" }) }} className={`${linkCls} bg-transparent border-none cursor-pointer p-0 text-left`}>
                   Sign Out
                 </button>
               </>

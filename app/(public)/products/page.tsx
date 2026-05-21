@@ -1,24 +1,16 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { getProducts } from '@/lib/cache/products'
 import { getCategories } from '@/lib/cache/categories'
-import { getWebPUrl } from '@/lib/cloudinary'
+import { ProductCard } from '@/components/product-card'
 import { Coffee } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
   title: 'All Products',
   description: 'Browse our full range of premium Indian coffee products.',
 }
 
-const GRADIENT_COLORS = [
-  'from-amber-100 to-amber-200',
-  'from-yellow-100 to-yellow-200',
-  'from-orange-100 to-orange-200',
-  'from-rose-100 to-rose-200',
-  'from-emerald-100 to-emerald-200',
-]
+export const revalidate = 300
 
 export default async function ProductsPage({
   searchParams,
@@ -37,84 +29,111 @@ export default async function ProductsPage({
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <main className="min-h-screen py-16">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif text-primary mb-4">Our Products</h1>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Discover the full range of Universal Brew coffee — crafted with 100% Arabica beans.
+    <main className="min-h-screen bg-background">
+      {/* Page Header */}
+      <div className="relative border-b border-amber-100/60 dark:border-amber-900/20 bg-gradient-to-b from-amber-50/70 to-background dark:from-amber-950/20 dark:to-background">
+        <div className="container mx-auto px-4 pt-16 pb-12 text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="h-px w-12 bg-primary/40" />
+            <Coffee className="h-4 w-4 text-primary/60" />
+            <div className="h-px w-12 bg-primary/40" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-serif text-foreground mb-3">Our Products</h1>
+          <p className="text-muted-foreground max-w-lg mx-auto text-sm leading-relaxed">
+            Discover the full range of Universal Brew coffee — crafted with 100% Arabica beans for every palate.
           </p>
         </div>
+      </div>
 
+      <div className="container mx-auto px-4 py-10">
         {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 justify-center mb-10">
-          <Link href="/products">
-            <Button variant={!categorySlug ? 'default' : 'outline'} size="sm">All</Button>
-          </Link>
-          {categories.map((cat) => (
-            <Link key={cat.id} href={`/products?category=${cat.slug}`}>
-              <Button variant={categorySlug === cat.slug ? 'default' : 'outline'} size="sm">
-                {cat.name}
-              </Button>
+        {categories.length > 0 && (
+          <div className="flex flex-wrap gap-2 justify-center mb-10">
+            <Link
+              href="/products"
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase transition-all border ${
+                !categorySlug
+                  ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                  : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+              }`}
+            >
+              All
             </Link>
-          ))}
-        </div>
+            {categories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/products?category=${cat.slug}`}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase transition-all border ${
+                  categorySlug === cat.slug
+                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                    : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                }`}
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* Grid */}
         {items.length === 0 ? (
-          <p className="text-center text-muted-foreground py-24">No products found.</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {items.map((product, idx) => {
-              const webpImg = product.featuredImage ? getWebPUrl(product.featuredImage, 400) : null
-              const gradient = GRADIENT_COLORS[idx % GRADIENT_COLORS.length]
-              return (
-                <Link
-                  key={product.id}
-                  href={`/products/${product.slug}`}
-                  className="group bg-card rounded-lg p-4 shadow-sm hover:shadow-md transition-all"
-                >
-                  {webpImg ? (
-                    <div className="aspect-square rounded-lg overflow-hidden mb-4">
-                      <Image
-                        src={webpImg}
-                        alt={product.name}
-                        width={400}
-                        height={400}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                    </div>
-                  ) : (
-                    <div className={`aspect-square rounded-lg bg-gradient-to-b ${gradient} flex items-center justify-center mb-4 group-hover:scale-105 transition-transform`}>
-                      <Coffee className="h-12 w-12 text-primary/40" />
-                    </div>
-                  )}
-                  <h3 className="font-semibold text-foreground mb-1 truncate">{product.name}</h3>
-                  {product.description && (
-                    <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{product.description}</p>
-                  )}
-                  <p className="text-primary font-bold">₹{Number(product.price).toFixed(2)}</p>
-                </Link>
-              )
-            })}
+          <div className="text-center py-24 text-muted-foreground">
+            <Coffee className="h-10 w-10 mx-auto mb-3 opacity-25" />
+            <p className="text-sm">No products found in this category.</p>
+            <Link href="/products" className="mt-3 inline-block text-xs text-primary hover:underline">
+              View all products
+            </Link>
           </div>
+        ) : (
+          <>
+            <p className="text-xs text-muted-foreground text-center mb-6">{total} product{total !== 1 ? 's' : ''}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+              {items.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  name={product.name}
+                  slug={product.slug}
+                  price={Number(product.price)}
+                  stock={product.stock}
+                  featuredImage={product.featuredImage}
+                  description={product.description}
+                  category={product.category}
+                />
+              ))}
+            </div>
+          </>
         )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-12">
-            {page > 1 && (
-              <Link href={`/products?page=${page - 1}${categorySlug ? `&category=${categorySlug}` : ''}`}>
-                <Button variant="outline">Previous</Button>
+          <div className="flex items-center justify-center gap-3 mt-14">
+            {page > 1 ? (
+              <Link
+                href={`/products?page=${page - 1}${categorySlug ? `&category=${categorySlug}` : ''}`}
+                className="px-5 py-2 text-sm rounded-full border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground transition-all"
+              >
+                ← Previous
               </Link>
+            ) : (
+              <span className="px-5 py-2 text-sm rounded-full border border-border/30 text-muted-foreground/30 cursor-not-allowed">
+                ← Previous
+              </span>
             )}
-            <span className="flex items-center px-4 text-sm text-muted-foreground">
-              Page {page} of {totalPages}
+            <span className="text-xs text-muted-foreground px-2">
+              {page} / {totalPages}
             </span>
-            {page < totalPages && (
-              <Link href={`/products?page=${page + 1}${categorySlug ? `&category=${categorySlug}` : ''}`}>
-                <Button variant="outline">Next</Button>
+            {page < totalPages ? (
+              <Link
+                href={`/products?page=${page + 1}${categorySlug ? `&category=${categorySlug}` : ''}`}
+                className="px-5 py-2 text-sm rounded-full border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground transition-all"
+              >
+                Next →
               </Link>
+            ) : (
+              <span className="px-5 py-2 text-sm rounded-full border border-border/30 text-muted-foreground/30 cursor-not-allowed">
+                Next →
+              </span>
             )}
           </div>
         )}

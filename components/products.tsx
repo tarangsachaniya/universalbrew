@@ -1,35 +1,26 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Coffee, ChevronLeft, ChevronRight } from "lucide-react"
-import { getWebPUrl } from "@/lib/cloudinary-url"
+import { ProductCard } from "@/components/product-card"
+
 
 type ProductItem = {
   id: string
   name: string
   slug: string
   price: number
+  stock: number
   featuredImage?: string | null
   description?: string | null
+  category?: { name: string; slug: string } | null
 }
 
 type ProductsProps = {
   products?: ProductItem[]
 }
-
-const GRADIENT_COLORS = [
-  "from-amber-100 to-amber-200",
-  "from-amber-200 to-amber-300",
-  "from-yellow-100 to-yellow-200",
-  "from-orange-100 to-orange-200",
-  "from-rose-100 to-rose-200",
-  "from-emerald-100 to-emerald-200",
-  "from-lime-100 to-lime-200",
-  "from-red-100 to-red-200",
-]
 
 export function Products({ products }: ProductsProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -68,51 +59,9 @@ export function Products({ products }: ProductsProps) {
         ) : (
           <div className="relative">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-              {visible.map((product, idx) => {
-                const webpImg = product.featuredImage ? getWebPUrl(product.featuredImage, 400) : null
-                const gradient = GRADIENT_COLORS[(currentIndex + idx) % GRADIENT_COLORS.length]
-                return (
-                  <div
-                    key={product.id}
-                    className="group bg-card rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <div className="relative">
-                      {webpImg ? (
-                        <div className="aspect-square rounded-lg overflow-hidden mb-4 group-hover:scale-105 transition-transform">
-                          <Image
-                            src={webpImg}
-                            alt={product.name}
-                            width={400}
-                            height={400}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className={`aspect-square rounded-lg bg-gradient-to-b ${gradient} flex items-center justify-center mb-4 group-hover:scale-105 transition-transform`}>
-                          <div className="text-center">
-                            <Coffee className="h-12 w-12 mx-auto text-primary/40 mb-2" />
-                            <span className="text-xs text-primary/60 font-medium">{product.name}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="text-center">
-                      <h3 className="font-semibold text-foreground mb-2">{product.name}</h3>
-                      <div className="flex items-center justify-center gap-2 mb-3">
-                        <span className="text-primary font-bold">₹{product.price.toFixed(2)}</span>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                        asChild
-                      >
-                        <Link href={`/products/${product.slug}`}>BUY NOW</Link>
-                      </Button>
-                    </div>
-                  </div>
-                )
-              })}
+              {visible.map((product) => (
+                <ProductCard key={product.id} {...product} />
+              ))}
             </div>
 
             <div className="flex justify-center items-center gap-4 mt-8">

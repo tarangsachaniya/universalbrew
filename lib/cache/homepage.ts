@@ -36,7 +36,7 @@ export const getNavigationCategories = unstable_cache(
 
 export const getHomepageData = unstable_cache(
   async () => {
-    const [hero, featuredProductsRaw, footer, categories] = await Promise.all([
+    const [hero, featuredProductsRaw, footer, categories, activeCoupons] = await Promise.all([
       prisma.homepageHero.findFirst({
         where: { active: true },
         orderBy: { updatedAt: 'desc' },
@@ -57,6 +57,13 @@ export const getHomepageData = unstable_cache(
           },
         },
       }),
+      prisma.coupon.findMany({
+        where: {
+          active: true,
+          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        },
+        select: { id: true, code: true, type: true, value: true, label: true, minOrder: true },
+      }),
     ])
 
     const featuredProducts = featuredProductsRaw.map((product) => ({
@@ -71,8 +78,9 @@ export const getHomepageData = unstable_cache(
       headerPages: [],
       footerPages: [],
       categories,
+      activeCoupons,
     }
   },
   ['homepage-data'],
-  { revalidate: 300, tags: ['homepage', 'products', 'pages', 'categories'] }
+  { revalidate: 300, tags: ['homepage', 'products', 'pages', 'categories', 'coupons'] }
 )

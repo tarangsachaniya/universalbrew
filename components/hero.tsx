@@ -5,7 +5,7 @@ import Image from "next/image"
 import styles from "./hero.module.css"
 import { getWebPUrl } from "@/lib/cloudinary-url"
 
-export type HeroSlide = { url: string; title: string; subtitle: string }
+export type HeroSlide = { url: string; mobileUrl?: string; title: string; subtitle: string }
 
 type HeroData = {
   id: string
@@ -35,13 +35,22 @@ function parseSlides(raw: unknown): HeroSlide[] {
   return raw.filter(
     (slide): slide is HeroSlide =>
       typeof slide === "object" && slide !== null && "url" in slide && "title" in slide
-  )
+  ).map((slide) => ({
+    url: slide.url,
+    mobileUrl: slide.mobileUrl ?? undefined,
+    title: slide.title,
+    subtitle: slide.subtitle ?? "",
+  }))
 }
 
 export function Hero({ data }: HeroProps) {
   const parsed = data ? parseSlides(data.slides) : []
   const slides: HeroSlide[] = parsed.length > 0
-    ? parsed.map((slide) => ({ ...slide, url: getWebPUrl(slide.url) }))
+    ? parsed.map((slide) => ({
+        ...slide,
+        url: getWebPUrl(slide.url),
+        mobileUrl: slide.mobileUrl ? getWebPUrl(slide.mobileUrl) : undefined,
+      }))
     : STATIC_SLIDES
 
   const slideRefs = useRef<(HTMLDivElement | null)[]>([])
@@ -152,14 +161,26 @@ export function Hero({ data }: HeroProps) {
           }}
           className={styles.slide}
         >
+          {/* Desktop image (16:9) — hidden on mobile when mobileUrl exists */}
           <Image
             src={slide.url}
             alt={slide.title}
             fill
             priority={index === 0}
             draggable={false}
-            className={styles.slideImg}
+            className={`${styles.slideImg} ${slide.mobileUrl ? "hidden sm:block" : ""}`}
           />
+          {/* Mobile image (9:16) — shown only on small screens */}
+          {slide.mobileUrl && (
+            <Image
+              src={slide.mobileUrl}
+              alt={slide.title}
+              fill
+              priority={index === 0}
+              draggable={false}
+              className={`${styles.slideImg} block sm:hidden`}
+            />
+          )}
           <div className={styles.overlay} />
           <div className={styles.info}>
             <div className={styles.slideTitle}>{slide.title}</div>

@@ -21,10 +21,31 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum CouponType {
+  PERCENT
+  FIXED
+  FREE_DELIVERY
+}
+
+model Coupon {
+  id          String     @id @default(cuid())
+  code        String     @unique
+  type        CouponType
+  value       Decimal    @db.Decimal(10, 2)
+  minOrder    Decimal?   @db.Decimal(10, 2)
+  maxUses     Int?
+  usedCount   Int        @default(0)
+  active      Boolean    @default(true)
+  expiresAt   DateTime?
+  label       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
 model User {
   id        String     @id @default(cuid())
   email     String     @unique
-  password  String
+  password  String?
   name      String?
   role      Role       @default(USER)
   createdAt DateTime   @default(now())
@@ -148,10 +169,12 @@ model Order {
   address   Address?    @relation(fields: [addressId], references: [id])
   items     Json
   total     Decimal     @db.Decimal(10, 2)
-  status    OrderStatus @default(PENDING)
-  note      String?
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  status      OrderStatus @default(PENDING)
+  note        String?
+  couponCode  String?
+  discount    Decimal?    @db.Decimal(10, 2)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Account {

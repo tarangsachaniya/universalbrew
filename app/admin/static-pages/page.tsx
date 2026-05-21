@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { db } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Pencil } from "lucide-react"
@@ -18,7 +18,7 @@ const ALL_KEYS: StaticPageKey[] = [
 ]
 
 export default async function StaticPagesAdminPage() {
-  const pages = await db.staticPage.findMany()
+  const pages = await prisma.staticPage.findMany()
   const pageMap = Object.fromEntries(pages.map((p) => [p.key, p]))
 
   return (

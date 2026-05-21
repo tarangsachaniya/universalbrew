@@ -65,3 +65,16 @@ export const getProductsByCategory = unstable_cache(
   ['products-by-category'],
   { revalidate: 300, tags: ['products'] }
 )
+
+export const getSimilarProducts = unstable_cache(
+  async (categorySlug: string, excludeSlug: string, limit = 4) => {
+    return prisma.product.findMany({
+      where: { published: true, category: { slug: categorySlug }, NOT: { slug: excludeSlug } },
+      include: { category: true },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    })
+  },
+  ['similar-products'],
+  { revalidate: 300, tags: ['products'] }
+)

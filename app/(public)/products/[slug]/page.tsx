@@ -1,12 +1,25 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getProductBySlug } from '@/lib/cache/products'
+import { prisma } from '@/lib/prisma'
+import { getProductBySlug, getSimilarProducts } from '@/lib/cache/products'
+
+export const revalidate = 3600
+
+export async function generateStaticParams() {
+  const products = await prisma.product.findMany({
+    where: { published: true },
+    select: { slug: true },
+  })
+  return products.map((p) => ({ slug: p.slug }))
+}
+
 import { getWebPUrl } from '@/lib/cloudinary'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Package } from 'lucide-react'
 import { ProductCarousel } from '@/components/product-carousel'
 import { AddToCartButton } from '@/components/add-to-cart-button'
+import { ProductCard } from '@/components/product-card'
 
 export async function generateMetadata({
   params,
@@ -49,6 +62,10 @@ export default async function ProductPage({
   const product = await getProductBySlug(slug)
   if (!product || !product.published) notFound()
 
+  const similarProducts = product.category
+    ? await getSimilarProducts(product.category.slug, slug)
+    : []
+
   const isVideo = (url: string) =>
     /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(url) || url.includes('/video/')
 
@@ -78,21 +95,35 @@ export default async function ProductPage({
   }
 
   return (
-    <main className="min-h-screen py-12">
+    <main className="min-h-screen bg-background">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="container mx-auto px-4">
-        <Link href="/products" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Back to Products
-        </Link>
 
-        <div className="grid md:grid-cols-2 gap-12">
-          {/* Media carousel */}
+      <div className="container mx-auto px-4 py-10">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-8">
+          <Link href="/products" className="inline-flex items-center gap-1.5 hover:text-primary transition-colors">
+            <ArrowLeft className="h-3.5 w-3.5" /> Products
+          </Link>
+          {product.category && (
+            <>
+              <span>/</span>
+              <Link href={`/categories/${product.category.slug}`} className="hover:text-primary transition-colors">
+                {product.category.name}
+              </Link>
+            </>
+          )}
+          <span>/</span>
+          <span className="text-foreground truncate max-w-[160px]">{product.name}</span>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-10 lg:gap-16">
+          {/* Carousel */}
           <div>
             {carouselItems.length > 0 ? (
               <ProductCarousel items={carouselItems} />
             ) : (
-              <div className="aspect-square rounded-xl bg-secondary flex items-center justify-center">
-                <Package className="h-24 w-24 text-muted-foreground" />
+              <div className="aspect-square rounded-2xl bg-muted flex items-center justify-center">
+                <Package className="h-24 w-24 text-muted-foreground/30" />
               </div>
             )}
           </div>
@@ -100,39 +131,44 @@ export default async function ProductPage({
           {/* Info */}
           <div className="space-y-6">
             {product.category && (
-              <Link href={`/categories/${product.category.slug}`} className="text-sm text-primary hover:underline">
+              <Link
+                href={`/categories/${product.category.slug}`}
+                className="inline-block text-xs font-semibold uppercase tracking-widest text-primary/80 hover:text-primary border border-primary/20 hover:border-primary/40 rounded-full px-3 py-1 transition-all"
+              >
                 {product.category.name}
               </Link>
             )}
 
-            <h1 className="text-3xl md:text-4xl font-serif text-foreground">{product.name}</h1>
+            <h1 className="text-3xl md:text-4xl font-serif text-foreground leading-tight">{product.name}</h1>
 
             {product.description && (
               <div
-                className="prose prose-sm prose-amber max-w-none text-muted-foreground"
+                className="prose prose-sm prose-amber max-w-none text-muted-foreground leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: product.description }}
               />
             )}
 
-            <div className="flex items-center gap-4">
-              <span className="text-3xl font-bold text-primary">₹{Number(product.price).toFixed(2)}</span>
-              {product.featuredProduct && <Badge variant="secondary">Featured</Badge>}
+            <div className="flex items-center gap-4 pt-1">
+              <span className="text-4xl font-bold text-primary">₹{Number(product.price).toFixed(2)}</span>
+              {product.featuredProduct && (
+                <Badge className="bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400">
+                  Featured
+                </Badge>
+              )}
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Package className="h-4 w-4" />
-              {product.stock > 0 ? (
-                <span className="text-green-600">{product.stock} in stock</span>
-              ) : (
-                <span className="text-destructive">Out of stock</span>
-              )}
+            <div className="flex items-center gap-2">
+              <div className={`h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-400'}`} />
+              <span className={`text-sm font-medium ${product.stock > 0 ? 'text-green-600' : 'text-destructive'}`}>
+                {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+              </span>
             </div>
 
             <AddToCartButton productId={product.id} stock={product.stock} />
 
             {product.content && (
-              <div className="pt-6 border-t">
-                <h2 className="text-lg font-semibold mb-3">About this product</h2>
+              <div className="pt-6 border-t border-border/60 space-y-3">
+                <h2 className="text-base font-semibold text-foreground">About this product</h2>
                 <div
                   className="prose prose-sm prose-amber max-w-none text-muted-foreground"
                   dangerouslySetInnerHTML={{ __html: product.content }}
@@ -141,6 +177,30 @@ export default async function ProductPage({
             )}
           </div>
         </div>
+
+        {/* Similar products */}
+        {similarProducts.length > 0 && (
+          <section className="mt-20 pt-10 border-t border-border/50">
+            <div className="flex items-center gap-4 mb-8">
+              <h2 className="text-2xl font-serif text-foreground shrink-0">You may also like</h2>
+              <div className="h-px flex-1 bg-border/50" />
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {similarProducts.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  id={p.id}
+                  name={p.name}
+                  slug={p.slug}
+                  price={Number(p.price)}
+                  featuredImage={p.featuredImage}
+                  stock={p.stock}
+                  category={p.category}
+                />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </main>
   )

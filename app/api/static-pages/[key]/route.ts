@@ -1,6 +1,8 @@
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/prisma'
-import { revalidateTag } from 'next/cache'
+import { revalidateTag as nextRevalidateTag } from 'next/cache'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const revalidateTag = (tag: string) => (nextRevalidateTag as any)(tag)
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import type { StaticPageKey } from '@prisma/client'

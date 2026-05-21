@@ -7,6 +7,7 @@ const youtubeUrlSchema = z.string().refine(
 
 export const heroSlideSchema = z.object({
   url: z.string().url('Must be a valid image URL'),
+  mobileUrl: z.string().url('Must be a valid image URL').optional().or(z.literal('')),
   title: z.string().min(1, 'Title required').max(200),
   subtitle: z.string().max(300).default(''),
 })

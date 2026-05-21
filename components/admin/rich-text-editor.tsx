@@ -72,7 +72,8 @@ export function RichTextEditor({ value, onChange, placeholder, enableImages = fa
   // Sync external value changes (e.g. form reset)
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value, false)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(editor.commands.setContent as any)(value, false)
     }
   }, [value, editor])
 
