@@ -20,6 +20,7 @@ export const getFooterContent = unstable_cache(
 export const getNavigationCategories = unstable_cache(
   async () => {
     return prisma.category.findMany({
+      where: { products: { some: { published: true } } },
       orderBy: { name: 'asc' },
       include: {
         products: {
