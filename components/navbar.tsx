@@ -14,9 +14,10 @@ type Category = { id: string; name: string; slug: string; products?: { id: strin
 
 type NavBarProps = {
   categories?: Category[]
+  tickerVisible?: boolean
 }
 
-export function NavBar({ categories: initialCategories = [] }: NavBarProps) {
+export function NavBar({ categories: initialCategories = [], tickerVisible = false }: NavBarProps) {
   const { data: session, status } = useSession()
   const [authOpen, setAuthOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
@@ -50,7 +51,7 @@ export function NavBar({ categories: initialCategories = [] }: NavBarProps) {
 
       <nav style={{
         position: "fixed",
-        top: "1rem",
+        top: tickerVisible ? "calc(2.25rem + 1rem)" : "1rem",
         left: "50%",
         transform: "translateX(-50%)",
         zIndex: 50,
