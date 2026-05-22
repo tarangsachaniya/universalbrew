@@ -14,13 +14,14 @@ type CouponTickerProps = {
 }
 
 function getCouponText(c: Coupon): string {
-  if (c.label) return c.label
   const val = Number(c.value)
   const min = c.minOrder ? Number(c.minOrder) : null
   const minText = min ? ` on orders above ₹${min.toFixed(0)}` : ""
-  if (c.type === "PERCENT") return `Use ${c.code} — ${val}% off${minText}`
-  if (c.type === "FIXED") return `Use ${c.code} — ₹${val.toFixed(0)} off${minText}`
-  return `Use ${c.code} — Free delivery${minText}`
+  let discount = ""
+  if (c.type === "PERCENT") discount = `Use ${c.code} — ${val}% off${minText}`
+  else if (c.type === "FIXED") discount = `Use ${c.code} — ₹${val.toFixed(0)} off${minText}`
+  else discount = `Use ${c.code} — Free delivery${minText}`
+  return c.label ? `${c.label} · ${discount}` : discount
 }
 
 const SPAN_STYLE = {
