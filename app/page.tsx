@@ -1,4 +1,5 @@
 import { NavBar } from '@/components/navbar'
+import { CouponTicker } from '@/components/coupon-ticker'
 import { Hero } from '@/components/hero'
 import { About } from '@/components/about'
 import { Videos } from '@/components/videos'
@@ -8,7 +9,7 @@ import { getHomepageData } from '@/lib/cache/homepage'
 
 export default async function Home() {
   const homepageData = await getHomepageData()
-  const { hero: heroData, featuredProducts, footer: footerData, categories } = homepageData
+  const { hero: heroData, featuredProducts, footer: footerData, categories, activeCoupons } = homepageData
 
   const about = {
     title: (heroData as any)?.aboutTitle ?? null,
@@ -16,9 +17,12 @@ export default async function Home() {
     features: (heroData as any)?.aboutFeatures ?? null,
   }
 
+  const tickerVisible = activeCoupons.length > 0
+
   return (
     <main className="min-h-screen">
-      <NavBar categories={categories} />
+      <CouponTicker coupons={activeCoupons} />
+      <NavBar categories={categories} tickerVisible={tickerVisible} />
       <Hero data={heroData} />
       <div style={{ scrollMarginTop: "90px" }}>
         <About title={about.title} body={about.body} features={about.features} />
