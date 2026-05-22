@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getCategories } from '@/lib/cache/categories'
 import { getWebPUrl } from '@/lib/cloudinary'
 import { Coffee, ArrowRight } from 'lucide-react'
+import { HtmlBg } from '@/components/html-bg'
 
 export const metadata: Metadata = {
   title: 'Categories',
@@ -15,6 +16,7 @@ export default async function CategoriesPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      <HtmlBg color="#78350f" />
       {/* Header */}
       <div className="relative h-64 md:h-72 w-full overflow-hidden">
         {/* Background */}
