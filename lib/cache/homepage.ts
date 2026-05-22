@@ -49,6 +49,7 @@ export const getHomepageData = unstable_cache(
       }),
       prisma.footerContent.findFirst(),
       prisma.category.findMany({
+        where: { products: { some: { published: true } } },
         orderBy: { name: 'asc' },
         include: {
           products: {
