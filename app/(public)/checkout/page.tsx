@@ -42,6 +42,7 @@ export default function CheckoutPage() {
   const [note, setNote] = useState("")
   const [couponCode, setCouponCode] = useState("")
   const [validating, setValidating] = useState(false)
+  const [couponError, setCouponError] = useState<string | null>(null)
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string; discount: number; type: string; message: string
   } | null>(null)
@@ -82,6 +83,7 @@ export default function CheckoutPage() {
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return
     setValidating(true)
+    setCouponError(null)
     try {
       const res = await fetch("/api/coupons/validate", {
         method: "POST",
@@ -91,12 +93,12 @@ export default function CheckoutPage() {
       const data = await res.json()
       if (data.valid) {
         setAppliedCoupon({ code: couponCode.trim().toUpperCase(), ...data })
-        toast.success(data.message)
+        setCouponError(null)
       } else {
-        toast.error(data.error ?? "Invalid coupon")
+        setCouponError(data.error ?? "Invalid coupon code")
       }
     } catch {
-      toast.error("Could not validate coupon")
+      setCouponError("Could not validate coupon. Please try again.")
     } finally {
       setValidating(false)
     }
@@ -247,23 +249,30 @@ export default function CheckoutPage() {
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-2">
-                  <Input
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
-                    placeholder="Enter coupon code"
-                    className="uppercase rounded-xl"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleApplyCoupon}
-                    disabled={validating || !couponCode.trim()}
-                    className="rounded-xl shrink-0"
-                  >
-                    {validating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
-                  </Button>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      value={couponCode}
+                      onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(null) }}
+                      onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
+                      placeholder="Enter coupon code"
+                      className={`uppercase rounded-xl ${couponError ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleApplyCoupon}
+                      disabled={validating || !couponCode.trim()}
+                      className="rounded-xl shrink-0"
+                    >
+                      {validating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
+                    </Button>
+                  </div>
+                  {couponError && (
+                    <p className="text-xs text-destructive flex items-center gap-1.5 px-1">
+                      <X className="h-3 w-3 shrink-0" />{couponError}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
