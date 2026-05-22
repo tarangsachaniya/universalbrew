@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 
 const ALL_TAGS = ['homepage', 'products', 'categories', 'coupons', 'pages', 'static-pages']
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   const session = await auth()
   if (!session || session.user.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
