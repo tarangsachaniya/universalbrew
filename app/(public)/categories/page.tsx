@@ -16,15 +16,26 @@ export default async function CategoriesPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
-      <div className="relative border-b border-amber-100/60 dark:border-amber-900/20 bg-gradient-to-b from-amber-50/70 to-background dark:from-amber-950/20 dark:to-background">
-        <div className="container mx-auto px-4 pt-16 pb-12 text-center">
+      <div className="relative h-64 md:h-72 w-full overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-stone-800 to-amber-950" />
+        {/* Decorative rings */}
+        <div className="absolute -right-16 -top-16 h-72 w-72 rounded-full border border-amber-400/10" />
+        <div className="absolute -right-8 -top-8 h-52 w-52 rounded-full border border-amber-400/10" />
+        <div className="absolute right-32 bottom-0 h-40 w-40 rounded-full border border-amber-400/8" />
+        {/* Soft glow */}
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 h-48 w-48 rounded-full bg-amber-500/10 blur-3xl" />
+        {/* Bottom fade */}
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background/30 to-transparent" />
+        {/* Content */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="h-px w-12 bg-primary/40" />
-            <Coffee className="h-4 w-4 text-primary/60" />
-            <div className="h-px w-12 bg-primary/40" />
+            <div className="h-px w-12 bg-amber-400/40" />
+            <Coffee className="h-4 w-4 text-amber-400/60" />
+            <div className="h-px w-12 bg-amber-400/40" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-serif text-foreground mb-3">Collections</h1>
-          <p className="text-muted-foreground max-w-lg mx-auto text-sm leading-relaxed">
+          <h1 className="text-4xl md:text-5xl font-serif text-white mb-3">Collections</h1>
+          <p className="text-amber-100/60 max-w-lg mx-auto text-sm leading-relaxed">
             Explore our curated coffee collections, each crafted to deliver a distinct and memorable experience.
           </p>
         </div>
@@ -57,8 +68,8 @@ export default async function CategoriesPage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-amber-50/60 dark:bg-amber-950/20">
-                        <Coffee className="h-16 w-16 text-primary/20" />
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-900 via-stone-800 to-amber-950">
+                        <Coffee className="h-16 w-16 text-amber-400/30" />
                       </div>
                     )}
                     {/* Gradient overlay */}
