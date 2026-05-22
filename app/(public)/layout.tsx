@@ -16,7 +16,7 @@ export default async function PublicLayout({ children }: { children: React.React
     <>
       <CouponTicker coupons={activeCoupons} />
       <NavBar categories={categories} tickerVisible={activeCoupons.length > 0} />
-      <div style={{ paddingTop: activeCoupons.length > 0 ? "126px" : "90px" }}>
+      <div style={{ paddingTop: activeCoupons.length > 0 ? "126px" : "0px" }}>
         {children}
       </div>
       <Footer data={footerData} />
