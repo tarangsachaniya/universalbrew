@@ -6,14 +6,20 @@ import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/admin/data-table'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 
-type Category = { id: string; name: string; slug: string; description: string | null }
+type Category = {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  _count: { products: number }
+}
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchCategories = () => {
-    fetch('/api/categories')
+    fetch('/api/admin/categories')
       .then((r) => r.json())
       .then((data) => { setCategories(data); setLoading(false) })
       .catch(() => setLoading(false))
@@ -34,6 +40,11 @@ export default function AdminCategoriesPage() {
       key: 'description',
       label: 'Description',
       render: (row: Category) => row.description ?? '—',
+    },
+    {
+      key: 'products',
+      label: 'Products',
+      render: (row: Category) => row._count.products,
     },
     {
       key: 'actions',
