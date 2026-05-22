@@ -151,4 +151,6 @@
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+  /* Prevent white flash on overscroll — matches amber-900 hero gradient */
+  background-color: #78350f;
 }
