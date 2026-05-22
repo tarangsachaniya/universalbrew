@@ -1,14 +1,12 @@
 "use client"
 
-import { Decimal } from "@prisma/client/runtime/library"
-
 type Coupon = {
   id: string
   code: string
   type: "PERCENT" | "FIXED" | "FREE_DELIVERY"
-  value: Decimal | number
+  value: number | { toNumber(): number }
   label: string | null
-  minOrder: Decimal | number | null
+  minOrder: number | { toNumber(): number } | null
 }
 
 type CouponTickerProps = {
@@ -42,7 +40,9 @@ export function CouponTicker({ coupons }: CouponTickerProps) {
         height: "2.25rem",
         display: "flex",
         alignItems: "center",
-        position: "relative",
+        position: "fixed",
+        top: 0,
+        left: 0,
         zIndex: 60,
       }}
     >
