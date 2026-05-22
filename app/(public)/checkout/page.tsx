@@ -16,6 +16,13 @@ import { toast } from "sonner"
 import { getWebPUrl } from "@/lib/cloudinary-url"
 import { cn } from "@/lib/utils"
 
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Razorpay: any
+  }
+}
+
 type Address = {
   id: string
   type: "HOME" | "OFFICE" | "OTHER"
@@ -31,8 +38,19 @@ type Address = {
 
 const TYPE_ICON = { HOME: Home, OFFICE: Briefcase, OTHER: MapPin }
 
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (window.Razorpay) { resolve(true); return }
+    const script = document.createElement("script")
+    script.src = "https://checkout.razorpay.com/v1/checkout.js"
+    script.onload = () => resolve(true)
+    script.onerror = () => resolve(false)
+    document.body.appendChild(script)
+  })
+}
+
 export default function CheckoutPage() {
-  const { status } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const { items, total, clearCart, loading: cartLoading } = useCart()
   const [addresses, setAddresses] = useState<Address[]>([])
@@ -108,8 +126,10 @@ export default function CheckoutPage() {
     if (!selectedAddressId) { toast.error("Please select a delivery address"); return }
     if (items.length === 0) { toast.error("Your cart is empty"); return }
     setPlacing(true)
+
     try {
-      const res = await fetch("/api/orders", {
+      // Step 1: Create pending order + Razorpay order on server
+      const createRes = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -118,15 +138,79 @@ export default function CheckoutPage() {
           ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
         }),
       })
-      if (!res.ok) {
-        const body = await res.json()
-        toast.error(body.error ?? "Failed to place order")
+
+      if (!createRes.ok) {
+        const body = await createRes.json()
+        toast.error(body.error ?? "Failed to initiate payment")
+        setPlacing(false)
         return
       }
-      clearCart()
-      toast.success("Order placed successfully!")
-      router.push("/account/orders")
-    } finally {
+
+      const { orderId, razorpayOrderId, amount, currency, keyId } = await createRes.json()
+
+      // Step 2: Load Razorpay script
+      const loaded = await loadRazorpayScript()
+      if (!loaded) {
+        toast.error("Failed to load payment gateway. Please try again.")
+        setPlacing(false)
+        return
+      }
+
+      // Step 3: Open Razorpay modal
+      const rzp = new window.Razorpay({
+        key: keyId,
+        amount,
+        currency,
+        order_id: razorpayOrderId,
+        name: "Universal Brew",
+        description: "Coffee Order",
+        theme: { color: "#DAA830" },
+        prefill: {
+          name: session?.user?.name ?? "",
+          email: session?.user?.email ?? "",
+        },
+        handler: async (response: {
+          razorpay_order_id: string
+          razorpay_payment_id: string
+          razorpay_signature: string
+        }) => {
+          // Step 4: Verify payment on server
+          const verifyRes = await fetch("/api/payments/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              orderId,
+            }),
+          })
+
+          if (verifyRes.ok) {
+            clearCart()
+            toast.success("Payment successful! Order confirmed.")
+            router.push("/account/orders")
+          } else {
+            toast.error("Payment verification failed. Please contact support.")
+            setPlacing(false)
+          }
+        },
+        modal: {
+          ondismiss: async () => {
+            await fetch("/api/payments/failed", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ orderId }),
+            }).catch(() => {})
+            toast.error("Payment cancelled.")
+            setPlacing(false)
+          },
+        },
+      })
+
+      rzp.open()
+    } catch {
+      toast.error("Something went wrong. Please try again.")
       setPlacing(false)
     }
   }
@@ -346,11 +430,15 @@ export default function CheckoutPage() {
                   disabled={placing || items.length === 0}
                 >
                   {placing ? (
-                    <><Loader2 className="h-4 w-4 animate-spin mr-2" />Placing Order…</>
+                    <><Loader2 className="h-4 w-4 animate-spin mr-2" />Processing…</>
                   ) : (
-                    "Place Order"
+                    "Pay & Place Order"
                   )}
                 </Button>
+
+                <p className="text-center text-xs text-muted-foreground">
+                  Secured by Razorpay · UPI · Cards · NetBanking
+                </p>
               </>
             )}
           </div>

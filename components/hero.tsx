@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
+import { ChevronDown } from "lucide-react"
 import styles from "./hero.module.css"
 import { getWebPUrl } from "@/lib/cloudinary-url"
 
@@ -188,6 +189,16 @@ export function Hero({ data }: HeroProps) {
           </div>
         </div>
       ))}
+      <button
+        onClick={() => {
+          const hero = document.getElementById("home")
+          if (hero) window.scrollTo({ top: hero.offsetTop + hero.offsetHeight, behavior: "smooth" })
+        }}
+        className={styles.scrollArrow}
+        aria-label="Scroll to content"
+      >
+        <ChevronDown size={32} strokeWidth={1.5} />
+      </button>
     </section>
   )
 }

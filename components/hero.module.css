@@ -215,5 +215,29 @@
   margin-top: 2px;
 }
 
+.scrollArrow {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 218, 140, 0.75);
+  padding: 8px;
+  animation: scrollBounce 2s ease-in-out infinite;
+  transition: color 0.2s ease;
+}
+
+.scrollArrow:hover {
+  color: rgba(255, 218, 140, 1);
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(8px); }
+}
+
 
 

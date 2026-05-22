@@ -164,19 +164,22 @@ model CartItem {
 }
 
 model Order {
-  id        String      @id @default(cuid())
-  userId    String
-  user      User        @relation(fields: [userId], references: [id])
-  addressId String?
-  address   Address?    @relation(fields: [addressId], references: [id])
-  items     Json
-  total     Decimal     @db.Decimal(10, 2)
-  status      OrderStatus @default(PENDING)
-  note        String?
-  couponCode  String?
-  discount    Decimal?    @db.Decimal(10, 2)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  addressId       String?
+  address         Address?    @relation(fields: [addressId], references: [id])
+  items           Json
+  total           Decimal     @db.Decimal(10, 2)
+  status          OrderStatus @default(PENDING)
+  note            String?
+  couponCode      String?
+  discount        Decimal?    @db.Decimal(10, 2)
+  paymentId       String?
+  razorpayOrderId String?
+  paymentStatus   String      @default("pending")
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 model Account {
