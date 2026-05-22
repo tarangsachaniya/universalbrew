@@ -71,7 +71,12 @@ function OrderCard({ order }: { order: Order }) {
               )}
             </div>
           ) : (
-            <p className="text-base font-bold text-foreground">₹{Number(order.total).toFixed(2)}</p>
+            <div>
+              <p className="text-base font-bold text-foreground">₹{Number(order.total).toFixed(2)}</p>
+              {order.couponCode && (
+                <p className="text-[10px] text-green-600 dark:text-green-400">{order.couponCode} applied</p>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -97,10 +102,14 @@ function OrderCard({ order }: { order: Order }) {
               <span className="font-semibold text-foreground">₹{(item.price * item.quantity).toFixed(2)}</span>
             </div>
           ))}
-          {order.discount && Number(order.discount) > 0 && (
+          {order.couponCode && (
             <div className="flex justify-between text-sm text-green-600 dark:text-green-400 pt-1 border-t border-border/40">
-              <span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span>
-              <span>−₹{Number(order.discount).toFixed(2)}</span>
+              <span>Coupon ({order.couponCode})</span>
+              <span>
+                {order.discount && Number(order.discount) > 0
+                  ? `−₹${Number(order.discount).toFixed(2)}`
+                  : 'Free delivery'}
+              </span>
             </div>
           )}
         </div>
