@@ -37,8 +37,7 @@ export function CouponTicker({ coupons }: CouponTickerProps) {
   if (coupons.length === 0) return null
 
   const items = coupons.map(getCouponText)
-  // Two copies offset by half duration so one is always visible — no gap, no duplication trick
-  const duration = 20
+  const duration = items.length * 8
 
   return (
     <div
@@ -54,32 +53,27 @@ export function CouponTicker({ coupons }: CouponTickerProps) {
         zIndex: 60,
       }}
     >
-      {[0, 1].map((idx) => (
-        <div
-          key={idx}
-          style={{
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            display: "flex",
-            alignItems: "center",
-            gap: "4rem",
-            whiteSpace: "nowrap",
-            willChange: "transform",
-            animation: `ticker-scroll ${duration}s linear infinite`,
-            animationDelay: idx === 1 ? `-${duration / 2}s` : "0s",
-          }}
-        >
-          {items.map((text, i) => (
-            <span key={i} style={SPAN_STYLE}>🏷 {text}</span>
-          ))}
-        </div>
-      ))}
+      <div
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "4rem",
+          whiteSpace: "nowrap",
+          willChange: "transform",
+          animation: `ticker-scroll ${duration}s linear infinite`,
+          height: "100%",
+        }}
+      >
+        {/* Items repeated twice so the loop is seamless */}
+        {[...items, ...items].map((text, i) => (
+          <span key={i} style={SPAN_STYLE}>🏷 {text}</span>
+        ))}
+      </div>
 
       <style>{`
         @keyframes ticker-scroll {
-          from { transform: translateX(100vw); }
-          to   { transform: translateX(-100%); }
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
         }
       `}</style>
     </div>
