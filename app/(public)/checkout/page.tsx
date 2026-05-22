@@ -305,20 +305,22 @@ export default function CheckoutPage() {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium">₹{total.toFixed(2)}</span>
                   </div>
-                  {appliedCoupon && appliedCoupon.discount > 0 && (
+                  {appliedCoupon && (
                     <div className="flex justify-between text-green-600 dark:text-green-400">
                       <span>Discount ({appliedCoupon.code})</span>
-                      <span>−₹{appliedCoupon.discount.toFixed(2)}</span>
+                      <span>
+                        {appliedCoupon.type === "FREE_DELIVERY"
+                          ? "Free delivery"
+                          : `−₹${appliedCoupon.discount.toFixed(2)}`}
+                      </span>
                     </div>
                   )}
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Shipping</span>
-                    <span>
-                      {appliedCoupon?.type === "FREE_DELIVERY"
-                        ? <span className="text-green-600 dark:text-green-400 font-medium">Free</span>
-                        : "Calculated at delivery"}
-                    </span>
-                  </div>
+                  {(!appliedCoupon || appliedCoupon.type !== "FREE_DELIVERY") && (
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Shipping</span>
+                      <span>Calculated at delivery</span>
+                    </div>
+                  )}
                 </div>
 
                 <Separator />
