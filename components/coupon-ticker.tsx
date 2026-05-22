@@ -23,12 +23,21 @@ function getCouponText(c: Coupon): string {
   return `Use ${c.code} — Free delivery${minText}`
 }
 
+const SPAN_STYLE = {
+  fontSize: "0.7rem",
+  letterSpacing: "0.12em",
+  color: "rgba(251,191,36,0.9)",
+  textTransform: "uppercase",
+  fontWeight: 500,
+  flexShrink: 0,
+}
+
 export function CouponTicker({ coupons }: CouponTickerProps) {
   if (coupons.length === 0) return null
 
   const items = coupons.map(getCouponText)
-  // Duplicate items for seamless loop
-  const allItems = [...items, ...items]
+  // Two copies offset by half duration so one is always visible — no gap, no duplication trick
+  const duration = 20
 
   return (
     <div
@@ -38,43 +47,38 @@ export function CouponTicker({ coupons }: CouponTickerProps) {
         borderBottom: "1px solid rgba(251,191,36,0.15)",
         overflow: "hidden",
         height: "2.25rem",
-        display: "flex",
-        alignItems: "center",
         position: "fixed",
         top: 0,
         left: 0,
         zIndex: 60,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          gap: "4rem",
-          whiteSpace: "nowrap",
-          animation: `ticker-scroll ${items.length * 8}s linear infinite`,
-          willChange: "transform",
-        }}
-      >
-        {allItems.map((text, i) => (
-          <span
-            key={i}
-            style={{
-              fontSize: "0.7rem",
-              letterSpacing: "0.12em",
-              color: "rgba(251,191,36,0.9)",
-              textTransform: "uppercase",
-              fontWeight: 500,
-            }}
-          >
-            🏷 {text}
-          </span>
-        ))}
-      </div>
+      {[0, 1].map((idx) => (
+        <div
+          key={idx}
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            display: "flex",
+            alignItems: "center",
+            gap: "4rem",
+            whiteSpace: "nowrap",
+            willChange: "transform",
+            animation: `ticker-scroll ${duration}s linear infinite`,
+            animationDelay: idx === 1 ? `-${duration / 2}s` : "0s",
+          }}
+        >
+          {items.map((text, i) => (
+            <span key={i} style={SPAN_STYLE}>🏷 {text}</span>
+          ))}
+        </div>
+      ))}
 
       <style>{`
         @keyframes ticker-scroll {
           from { transform: translateX(100vw); }
-          to { transform: translateX(-100%); }
+          to   { transform: translateX(-100%); }
         }
       `}</style>
     </div>
