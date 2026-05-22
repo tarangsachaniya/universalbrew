@@ -82,7 +82,10 @@ export function ProductCard({ id, name, slug, price, featuredImage, stock, descr
         )}
         <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">{name}</h3>
         {description && (
-          <p className="text-xs text-muted-foreground line-clamp-1">{description}</p>
+          <p
+            className="text-xs text-muted-foreground line-clamp-1"
+            dangerouslySetInnerHTML={{ __html: description }}
+          />
         )}
         <p className="text-primary font-bold text-base mt-auto pt-1">₹{price.toFixed(2)}</p>
       </div>
