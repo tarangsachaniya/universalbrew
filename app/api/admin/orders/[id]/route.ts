@@ -41,7 +41,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       include: { user: { select: { email: true, name: true } }, address: true },
     })
     if (fullOrder?.user?.email) {
-      sendOrderCompletedEmail(fullOrder.user.email, {
+      await sendOrderCompletedEmail(fullOrder.user.email, {
         id: fullOrder.id,
         total: Number(fullOrder.total),
         discount: fullOrder.discount != null ? Number(fullOrder.discount) : null,

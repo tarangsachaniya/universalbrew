@@ -30,7 +30,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`
 
   await transporter.sendMail({
-    from: `"Universal Brew" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+    from: process.env.SMTP_FROM || `"Universal Brew" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Reset Your Password — Universal Brew',
     html: `
@@ -217,7 +217,7 @@ export async function sendOrderConfirmationEmail(email: string, order: OrderEmai
     </td></tr>`
 
   await transporter.sendMail({
-    from: `"Universal Brew" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+    from: process.env.SMTP_FROM || `"Universal Brew" <${process.env.SMTP_USER}>`,
     to: email,
     subject: `Order Confirmed #${orderRef} — Universal Brew`,
     html: emailWrapper(body),
@@ -225,9 +225,11 @@ export async function sendOrderConfirmationEmail(email: string, order: OrderEmai
 }
 
 export async function sendPaymentFailedEmail(email: string, orderId: string, amount: number) {
+  const orderRef = orderId.slice(-8).toUpperCase()
   const body = `
     <tr><td style="padding:48px 48px 32px;color:#3d1f0d;">
-      <h2 style="margin:0 0 16px;font-size:22px;color:#3d1f0d;">Payment unsuccessful</h2>
+      <h2 style="margin:0 0 4px;font-size:22px;color:#3d1f0d;">Payment unsuccessful</h2>
+      <p style="margin:0 0 24px;font-size:13px;color:#9b7b6b;font-family:Arial,sans-serif;">Order #${orderRef}</p>
       <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#6b4c3b;">
         We weren't able to process your payment of <strong>₹${amount.toFixed(2)}</strong>. No charges were made to your account.
       </p>
@@ -242,7 +244,7 @@ export async function sendPaymentFailedEmail(email: string, orderId: string, amo
     </td></tr>`
 
   await transporter.sendMail({
-    from: `"Universal Brew" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+    from: process.env.SMTP_FROM || `"Universal Brew" <${process.env.SMTP_USER}>`,
     to: email,
     subject: `Payment Failed — Universal Brew`,
     html: emailWrapper(body),
@@ -273,7 +275,7 @@ export async function sendOrderCompletedEmail(email: string, order: OrderEmailDa
     </td></tr>`
 
   await transporter.sendMail({
-    from: `"Universal Brew" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+    from: process.env.SMTP_FROM || `"Universal Brew" <${process.env.SMTP_USER}>`,
     to: email,
     subject: `Your Order Has Been Delivered! — Universal Brew`,
     html: emailWrapper(body),
