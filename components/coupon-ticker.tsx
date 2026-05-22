@@ -17,11 +17,12 @@ function getCouponText(c: Coupon): string {
   const val = Number(c.value)
   const min = c.minOrder ? Number(c.minOrder) : null
   const minText = min ? ` on orders above ₹${min.toFixed(0)}` : ""
-  let discount = ""
-  if (c.type === "PERCENT") discount = `Use ${c.code} — ${val}% off${minText}`
-  else if (c.type === "FIXED") discount = `Use ${c.code} — ₹${val.toFixed(0)} off${minText}`
-  else discount = `Use ${c.code} — Free delivery${minText}`
-  return c.label ? `${c.label} · ${discount}` : discount
+  let text = ""
+  if (c.label) text = c.label
+  else if (c.type === "PERCENT") text = `${val}% off${minText}`
+  else if (c.type === "FIXED") text = `₹${val.toFixed(0)} off${minText}`
+  else text = `Free delivery${minText}`
+  return `${c.code} - ${text}`
 }
 
 const SPAN_STYLE = {
