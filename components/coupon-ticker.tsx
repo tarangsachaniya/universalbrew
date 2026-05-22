@@ -73,8 +73,8 @@ export function CouponTicker({ coupons }: CouponTickerProps) {
 
       <style>{`
         @keyframes ticker-scroll {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
+          from { transform: translateX(100vw); }
+          to { transform: translateX(-100%); }
         }
       `}</style>
     </div>
