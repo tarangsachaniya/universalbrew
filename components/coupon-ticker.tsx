@@ -39,6 +39,8 @@ export function CouponTicker({ coupons }: CouponTickerProps) {
 
   const items = coupons.map(getCouponText)
   const duration = items.length * 8
+  // 5 copies — content always fills screen; animating -20% scrolls exactly 1 copy
+  const allItems = [...items, ...items, ...items, ...items, ...items]
 
   return (
     <div
@@ -65,8 +67,7 @@ export function CouponTicker({ coupons }: CouponTickerProps) {
           height: "100%",
         }}
       >
-        {/* Items repeated twice so the loop is seamless */}
-        {[...items, ...items].map((text, i) => (
+        {allItems.map((text, i) => (
           <span key={i} style={SPAN_STYLE}>🏷 {text}</span>
         ))}
       </div>
@@ -74,7 +75,7 @@ export function CouponTicker({ coupons }: CouponTickerProps) {
       <style>{`
         @keyframes ticker-scroll {
           from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
+          to   { transform: translateX(-20%); }
         }
       `}</style>
     </div>
