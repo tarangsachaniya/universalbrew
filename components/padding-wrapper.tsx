@@ -7,7 +7,7 @@ export function PaddingWrapper({ children, hasCoupons }: { children: React.React
   const isSpecialPage = /^\/(products|checkout|account|orders)(\/|$)/.test(pathname)
 
   const paddingTop = isSpecialPage
-    ? '90px'
+    ? '120px'
     : hasCoupons
     ? '126px'
     : '0px'
