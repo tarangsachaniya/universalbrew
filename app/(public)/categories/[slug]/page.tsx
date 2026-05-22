@@ -6,6 +6,7 @@ import { getCategoryBySlug } from '@/lib/cache/categories'
 import { getWebPUrl } from '@/lib/cloudinary'
 import { ArrowLeft, Coffee } from 'lucide-react'
 import { ProductCard } from '@/components/product-card'
+import { HtmlBg } from '@/components/html-bg'
 
 export async function generateMetadata({
   params,
@@ -34,6 +35,7 @@ export default async function CategoryPage({
 
   return (
     <main className="min-h-screen bg-background">
+      <HtmlBg color="#78350f" />
       {/* Hero Banner */}
       <div className="relative h-64 md:h-80 w-full overflow-hidden">
         {catImg ? (
