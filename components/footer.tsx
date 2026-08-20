@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { Logo } from "@/components/logo"
 
 type SocialLinks = {
   facebook?: string
@@ -53,6 +54,13 @@ export function Footer({ data }: FooterProps) {
 
   return (
     <footer className="bg-secondary">
+      {/* Brand Row */}
+      <div className="py-8 border-b border-border">
+        <div className="container mx-auto px-4 flex justify-center">
+          <Logo variant="full" className="h-10 w-auto text-primary" />
+        </div>
+      </div>
+
       {/* Info Row */}
       {data && (data.address || data.phone || data.email) && (
         <div className="py-6 border-b border-border">
