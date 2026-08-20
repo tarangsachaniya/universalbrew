@@ -19,6 +19,17 @@ async function main() {
     },
   })
 
+  // Only seed the catalog (categories/products/variants) into a genuinely
+  // empty database. Re-running this against a live database would overwrite
+  // any price/stock/content edits made through the admin CMS with these
+  // static seed values — safe for first-time setup, not safe as a
+  // recurring build/deploy step otherwise.
+  const existingProductCount = await prisma.product.count()
+  if (existingProductCount > 0) {
+    console.log(`✓ Catalog already has ${existingProductCount} product(s) — skipping catalog seed (admin user upsert still ran above).`)
+    return
+  }
+
   // Seed categories
   for (const categoryData of CATEGORIES) {
     const category = await prisma.category.upsert({
