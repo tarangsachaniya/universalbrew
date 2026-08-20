@@ -194,7 +194,7 @@ export function ProductCard({
           />
           <Link
             href={`/products/${slug}`}
-            className="flex items-center justify-center px-4 !py-2.5 !text-[0.62rem] !h-auto !tracking-[0.15em] bg-transparent border border-white/20 hover:border-amber-500 hover:text-amber-400 transition-colors font-semibold uppercase text-white/80"
+            className="flex items-center justify-center px-4 !py-2.5 !text-[0.62rem] !h-auto !tracking-[0.15em] bg-transparent border border-amber-500 text-amber-600 dark:text-amber-500 hover:bg-amber-500 hover:text-white dark:hover:text-black transition-colors font-semibold uppercase"
             style={{ textDecoration: "none" }}
           >
             View
