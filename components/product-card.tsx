@@ -109,26 +109,7 @@ export function ProductCard({
             </div>
           )}
 
-          {/* Quick Add overlay — appears on hover */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: "0.75rem",
-              background: "linear-gradient(to top, rgba(10,4,0,0.82), transparent)",
-              transform: "translateY(100%)",
-              transition: "transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
-            }}
-            className="group-hover:!translate-y-0"
-          >
-            <AddToCartButton
-              productId={id}
-              stock={stock}
-              className="w-full !py-2 !text-[0.62rem] !h-auto !tracking-[0.16em] bg-amber-500 hover:bg-amber-400 text-black font-semibold border-0 uppercase"
-            />
-          </div>
+
         </div>
       </Link>
 
@@ -202,6 +183,22 @@ export function ProductCard({
               {formatPrice(compareAtPrice)}
             </span>
           )}
+        </div>
+
+        {/* Actions */}
+        <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.85rem" }}>
+          <AddToCartButton
+            productId={id}
+            stock={stock}
+            className="flex-1 !py-2.5 !text-[0.62rem] !h-auto !tracking-[0.15em] bg-amber-500 hover:bg-amber-400 text-black font-semibold border-0 uppercase"
+          />
+          <Link
+            href={`/products/${slug}`}
+            className="flex items-center justify-center px-4 !py-2.5 !text-[0.62rem] !h-auto !tracking-[0.15em] bg-transparent border border-white/20 hover:border-amber-500 hover:text-amber-400 transition-colors font-semibold uppercase text-white/80"
+            style={{ textDecoration: "none" }}
+          >
+            View
+          </Link>
         </div>
       </div>
     </article>
