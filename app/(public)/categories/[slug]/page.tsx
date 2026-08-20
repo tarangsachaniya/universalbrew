@@ -111,9 +111,13 @@ export default async function CategoryPage({
                 name={product.name}
                 slug={product.slug}
                 price={Number(product.price)}
+                compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
                 featuredImage={product.featuredImage}
                 stock={product.stock}
                 category={category}
+                badges={product.badges}
+                rating={product.rating}
+                reviewCount={product.reviewCount}
               />
             ))}
           </div>

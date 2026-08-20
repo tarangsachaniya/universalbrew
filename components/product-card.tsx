@@ -2,25 +2,46 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Coffee } from "lucide-react"
+import { Coffee, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { AddToCartButton } from "@/components/add-to-cart-button"
 import { getWebPUrl, getBlurUrl } from "@/lib/cloudinary-url"
+import { formatPrice, getDiscountPercent } from "@/lib/format-price"
 
 type ProductCardProps = {
   id: string
   name: string
   slug: string
   price: number
+  compareAtPrice?: number | null
   featuredImage?: string | null
   stock: number
   description?: string | null
   category?: { name: string; slug: string } | null
+  badges?: string[]
+  rating?: number | null
+  reviewCount?: number
 }
 
-export function ProductCard({ id, name, slug, price, featuredImage, stock, description, category }: ProductCardProps) {
+export function ProductCard({
+  id,
+  name,
+  slug,
+  price,
+  compareAtPrice,
+  featuredImage,
+  stock,
+  description,
+  category,
+  badges,
+  rating,
+  reviewCount,
+}: ProductCardProps) {
   const webpImg = featuredImage ? getWebPUrl(featuredImage, 400) : null
   const blurUrl = featuredImage ? getBlurUrl(featuredImage) : ""
+  const discountPercent = getDiscountPercent(price, compareAtPrice)
+  const hasRating = typeof rating === "number" && !!reviewCount && reviewCount > 0
 
   return (
     <div className="group relative bg-card rounded-xl overflow-hidden border border-border/50 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
@@ -55,6 +76,15 @@ export function ProductCard({ id, name, slug, price, featuredImage, stock, descr
           ) : null}
         </div>
 
+        {/* Discount badge */}
+        {discountPercent !== null && (
+          <div className="absolute top-2 left-2 z-10">
+            <span className="text-[10px] font-semibold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+              -{discountPercent}%
+            </span>
+          </div>
+        )}
+
         {/* CTA overlay — visible on hover (desktop) or always (touch) */}
         <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 [@media(hover:none)]:translate-y-0 transition-transform duration-300 z-20 p-3 bg-gradient-to-t from-black/80 to-black/20 flex flex-col gap-2">
           <AddToCartButton
@@ -81,13 +111,38 @@ export function ProductCard({ id, name, slug, price, featuredImage, stock, descr
           </span>
         )}
         <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">{name}</h3>
+        {badges && badges.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1">
+            {badges.slice(0, 2).map((badge) => (
+              <Badge key={badge} variant="secondary" className="text-[9px] px-1.5 py-0 h-4 leading-4 font-medium">
+                {badge}
+              </Badge>
+            ))}
+            {badges.length > 2 && (
+              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 leading-4 font-medium">
+                +{badges.length - 2}
+              </Badge>
+            )}
+          </div>
+        )}
         {description && (
           <p
             className="text-xs text-muted-foreground line-clamp-1"
             dangerouslySetInnerHTML={{ __html: description }}
           />
         )}
-        <p className="text-primary font-bold text-base mt-auto pt-1">₹{price.toFixed(2)}</p>
+        {hasRating && (
+          <div className="flex items-center gap-1">
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            <span className="text-xs text-muted-foreground font-medium">{rating!.toFixed(1)}</span>
+          </div>
+        )}
+        <div className="flex items-baseline gap-2 mt-auto pt-1">
+          <p className="text-primary font-bold text-base">{formatPrice(price)}</p>
+          {compareAtPrice != null && discountPercent !== null && (
+            <p className="text-muted-foreground text-xs line-through">{formatPrice(compareAtPrice)}</p>
+          )}
+        </div>
       </div>
     </div>
   )

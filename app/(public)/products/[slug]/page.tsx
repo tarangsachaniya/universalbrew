@@ -193,9 +193,13 @@ export default async function ProductPage({
                   name={p.name}
                   slug={p.slug}
                   price={Number(p.price)}
+                  compareAtPrice={p.compareAtPrice ? Number(p.compareAtPrice) : null}
                   featuredImage={p.featuredImage}
                   stock={p.stock}
                   category={p.category}
+                  badges={p.badges}
+                  rating={p.rating}
+                  reviewCount={p.reviewCount}
                 />
               ))}
             </div>

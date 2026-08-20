@@ -95,10 +95,14 @@ export default async function ProductsPage({
                   name={product.name}
                   slug={product.slug}
                   price={Number(product.price)}
+                  compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
                   stock={product.stock}
                   featuredImage={product.featuredImage}
                   description={product.description}
                   category={product.category}
+                  badges={product.badges}
+                  rating={product.rating}
+                  reviewCount={product.reviewCount}
                 />
               ))}
             </div>

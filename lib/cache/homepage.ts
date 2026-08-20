@@ -71,6 +71,7 @@ export const getHomepageData = unstable_cache(
     const featuredProducts = featuredProductsRaw.map((product) => ({
       ...product,
       price: parseFloat(String(product.price)),
+      compareAtPrice: product.compareAtPrice ? parseFloat(String(product.compareAtPrice)) : null,
     }))
 
     return {

@@ -12,10 +12,14 @@ type ProductItem = {
   name: string
   slug: string
   price: number
+  compareAtPrice?: number | null
   stock: number
   featuredImage?: string | null
   description?: string | null
   category?: { name: string; slug: string } | null
+  badges?: string[]
+  rating?: number | null
+  reviewCount?: number
 }
 
 type ProductsProps = {
