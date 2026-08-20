@@ -18,3 +18,5 @@ node_modules
 .claude
 .claude-dev
 .superpowers/
+.vercel
+.env*

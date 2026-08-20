@@ -56,6 +56,9 @@ const STATIC_SLIDES: HeroSlide[] = [
 
 const AUTOPLAY_MS = 6000
 
+/** Shared so the non-heading slide titles are pixel-identical to the <h1> on slide 0. */
+const HERO_TITLE_CLASS = "font-serif text-4xl sm:text-5xl lg:text-6xl font-medium max-w-3xl leading-tight"
+
 function parseSlides(raw: unknown): HeroSlide[] {
   if (!Array.isArray(raw) || raw.length === 0) return []
   return raw.filter(
@@ -147,9 +150,14 @@ export function Hero({ data }: HeroProps) {
               )}
               <div className={styles.overlay} />
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4 text-white">
-                <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-medium max-w-3xl leading-tight">
-                  {slide.title}
-                </h1>
+                {/* Every slide lives in the DOM at once (Embla translates, it does not
+                    unmount), so only the first slide's title may be an <h1> — the rest
+                    render identically but as plain text to keep one h1 per page. */}
+                {index === 0 ? (
+                  <h1 className={HERO_TITLE_CLASS}>{slide.title}</h1>
+                ) : (
+                  <p className={HERO_TITLE_CLASS}>{slide.title}</p>
+                )}
                 <p className="mt-4 font-sans text-base sm:text-lg text-white/85 max-w-xl">
                   {slide.subtitle}
                 </p>

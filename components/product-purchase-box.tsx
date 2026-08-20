@@ -97,8 +97,11 @@ export function ProductPurchaseBox({
         variantId={selectedVariantId ?? undefined}
       />
 
-      {/* Sticky mobile purchase bar — mirrors the exact same state as above */}
+      {/* Sticky mobile purchase bar — mirrors the exact same state as above.
+          `data-mobile-buy-bar` is what globals.css keys the footer's reserved
+          bottom padding off of, so the bar cannot cover the end of the page. */}
       <div
+        data-mobile-buy-bar
         className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-background/95 backdrop-blur border-t border-border px-4 py-3 flex items-center justify-between gap-3"
         style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
       >

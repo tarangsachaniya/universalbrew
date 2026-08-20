@@ -2,6 +2,18 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
 import { useSession } from "next-auth/react"
+import { toast } from "sonner"
+
+/**
+ * Cart API errors are a plain string for our own messages ("Insufficient stock for X"),
+ * but a zod `flatten()` *object* on 400 validation failures. Passing that object into
+ * `new Error(...)` renders "[object Object]" to the user, so anything non-string falls
+ * back to a readable message instead.
+ */
+function apiErrorMessage(body: unknown, fallback: string): string {
+  const error = (body as { error?: unknown } | null | undefined)?.error
+  return typeof error === "string" && error.trim() !== "" ? error : fallback
+}
 
 type CartProduct = {
   id: string
@@ -70,8 +82,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ productId, quantity, variantId }),
     })
     if (!res.ok) {
-      const body = await res.json()
-      throw new Error(body.error ?? "Failed to add item")
+      const body = await res.json().catch(() => null)
+      throw new Error(apiErrorMessage(body, "Failed to add item"))
     }
     const newItem: CartItemType = await res.json()
     setItems((prev) => {
@@ -102,7 +114,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ quantity }),
     })
-    if (!res.ok) await fetchCart()
+    if (!res.ok) {
+      // The server checks stock across *every* cart line for a product, while the
+      // cart sheet's `+` button only knows about one line — so a rejection here is
+      // reachable with the button still enabled. Say why before snapping back.
+      const body = await res.json().catch(() => null)
+      toast.error(apiErrorMessage(body, "Couldn't update quantity"))
+      await fetchCart()
+    }
   }
 
   const clearCart = () => setItems([])

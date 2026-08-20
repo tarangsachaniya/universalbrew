@@ -152,3 +152,14 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* The product page's sticky mobile buy bar is `position: fixed`, so it sits on top
+   of whatever ends the document — the site footer, which lives outside the page's
+   own content container and therefore cannot be padded from inside the page.
+   Reserve room under the footer instead, only on pages that actually render the bar
+   and only at the breakpoint where it is visible (below Tailwind's `md`). */
+@media (max-width: 767px) {
+  body:has([data-mobile-buy-bar]) footer {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+  }
+}

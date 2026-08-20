@@ -6,18 +6,26 @@ import { CATEGORIES, PRODUCTS } from './seed-data'
 const prisma = new PrismaClient()
 
 async function main() {
+  // Without a real password this would upsert an ADMIN row whose hash is a hash of
+  // the empty string — an unusable account that still exists in the database. Skip
+  // the step entirely instead; the catalog seed below is independent of it.
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@universalbrew.shop'
-  const adminPassword = await bcrypt.hash(process.env?.SEED_ADMIN_PASSWORD ?? '', 12)
-  await prisma.user.upsert({
-    where: { email: adminEmail },
-    update: {},
-    create: {
-      email: adminEmail,
-      password: adminPassword,
-      name: 'Admin',
-      role: 'ADMIN',
-    },
-  })
+  const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD
+  if (seedAdminPassword) {
+    await prisma.user.upsert({
+      where: { email: adminEmail },
+      update: {},
+      create: {
+        email: adminEmail,
+        password: await bcrypt.hash(seedAdminPassword, 12),
+        name: 'Admin',
+        role: 'ADMIN',
+      },
+    })
+    console.log(`✓ Admin user ready: ${adminEmail}`)
+  } else {
+    console.log('⚠ SEED_ADMIN_PASSWORD is not set — skipping admin user seed (set it, plus optionally SEED_ADMIN_EMAIL, to create one).')
+  }
 
   // Only seed the catalog (categories/products/variants) into a genuinely
   // empty database. Re-running this against a live database would overwrite
@@ -26,7 +34,7 @@ async function main() {
   // recurring build/deploy step otherwise.
   const existingProductCount = await prisma.product.count()
   if (existingProductCount > 0) {
-    console.log(`✓ Catalog already has ${existingProductCount} product(s) — skipping catalog seed (admin user upsert still ran above).`)
+    console.log(`✓ Catalog already has ${existingProductCount} product(s) — skipping catalog seed (the admin user step above ran independently).`)
     return
   }
 

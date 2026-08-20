@@ -5,6 +5,6 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       { userAgent: '*', allow: '/', disallow: ['/admin', '/api/'] },
     ],
-    sitemap: 'https://universalbrew.in/sitemap.xml',
+    sitemap: 'https://www.universalbrew.shop/sitemap.xml',
   }
 }

@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: page?.title ?? "About Us",
     description: "Learn about Universal Brew Coffee — our story, values, and products.",
-    alternates: { canonical: "https://universalbrew.in/about-us" },
+    alternates: { canonical: "https://www.universalbrew.shop/about-us" },
   }
 }
 

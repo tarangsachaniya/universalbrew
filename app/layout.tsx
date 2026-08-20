@@ -26,7 +26,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://universalbrew.in'),
+  metadataBase: new URL('https://www.universalbrew.shop'),
   title: {
     default: 'Universal Brew — Premium Indian Coffee',
     template: '%s | Universal Brew',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     'premium coffee', 'flavoured coffee', 'keto coffee', 'gluten free coffee',
     'no sugar coffee', 'natural coffee', 'coffee brand india',
   ],
-  authors: [{ name: 'Universal Brew', url: 'https://universalbrew.in' }],
+  authors: [{ name: 'Universal Brew', url: 'https://www.universalbrew.shop' }],
   creator: 'Universal Brew',
   publisher: 'Universal Brew',
   category: 'food & beverage',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://universalbrew.in',
+    url: 'https://www.universalbrew.shop',
     siteName: 'Universal Brew',
     title: 'Universal Brew — Premium Indian Coffee',
     description: '100% pure Arabica coffee with a classic Indian touch. No artificial flavours, keto friendly, gluten-free.',
@@ -77,9 +77,13 @@ export const metadata: Metadata = {
   icons: {
     icon: '/icon.svg',
     shortcut: '/icon.svg',
+    // Declaring `icons` at all opts out of Next's file-convention icon discovery,
+    // so `app/apple-icon.tsx` has to be pointed at explicitly or no
+    // <link rel="apple-touch-icon"> is emitted.
+    apple: '/apple-icon',
   },
   alternates: {
-    canonical: 'https://universalbrew.in',
+    canonical: 'https://www.universalbrew.shop',
   },
 }
 

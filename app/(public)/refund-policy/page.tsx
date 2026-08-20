@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: page?.title ?? "Refund Policy",
     description: "Universal Brew return, refund, and cancellation policy.",
-    alternates: { canonical: "https://universalbrew.in/refund-policy" },
+    alternates: { canonical: "https://www.universalbrew.shop/refund-policy" },
   }
 }
 

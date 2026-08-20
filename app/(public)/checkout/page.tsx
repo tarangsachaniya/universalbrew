@@ -14,6 +14,7 @@ import { Home, Briefcase, MapPin, Plus, Check, Loader2, Tag, X } from "lucide-re
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { getWebPUrl } from "@/lib/cloudinary-url"
+import { formatPrice } from "@/lib/format-price"
 import { cn } from "@/lib/utils"
 
 declare global {
@@ -387,7 +388,7 @@ export default function CheckoutPage() {
                             Qty: {item.quantity}{item.variant ? ` · ${item.variant.weight}` : ""}
                           </p>
                         </div>
-                        <p className="text-sm font-semibold text-foreground shrink-0">₹{(Number(item.variant?.price ?? item.product.price) * item.quantity).toFixed(2)}</p>
+                        <p className="text-sm font-semibold text-foreground shrink-0">{formatPrice(Number(item.variant?.price ?? item.product.price) * item.quantity)}</p>
                       </div>
                     )
                   })}
@@ -398,7 +399,7 @@ export default function CheckoutPage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-medium">₹{total.toFixed(2)}</span>
+                    <span className="font-medium">{formatPrice(total)}</span>
                   </div>
                   {appliedCoupon && (
                     <div className="flex justify-between text-green-600 dark:text-green-400">
@@ -406,7 +407,7 @@ export default function CheckoutPage() {
                       <span>
                         {appliedCoupon.type === "FREE_DELIVERY"
                           ? "Free delivery"
-                          : `−₹${appliedCoupon.discount.toFixed(2)}`}
+                          : `−${formatPrice(appliedCoupon.discount)}`}
                       </span>
                     </div>
                   )}
@@ -422,7 +423,7 @@ export default function CheckoutPage() {
 
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-foreground">Total</span>
-                  <span className="text-xl font-bold text-primary">₹{(total - (appliedCoupon?.discount ?? 0)).toFixed(2)}</span>
+                  <span className="text-xl font-bold text-primary">{formatPrice(total - (appliedCoupon?.discount ?? 0))}</span>
                 </div>
 
                 <Button

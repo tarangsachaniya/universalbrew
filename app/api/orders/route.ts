@@ -98,6 +98,7 @@ export async function POST(req: Request) {
     name: item.product.name,
     price: Number(item.variant?.price ?? item.product.price),
     weight: item.variant?.weight ?? null,
+    sku: item.variant?.sku ?? null,
     quantity: item.quantity,
     image: item.product.featuredImage,
     slug: item.product.slug,

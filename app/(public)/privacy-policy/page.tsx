@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: page?.title ?? "Privacy Policy",
     description: "How Universal Brew collects, uses, and protects your personal information.",
-    alternates: { canonical: "https://universalbrew.in/privacy-policy" },
+    alternates: { canonical: "https://www.universalbrew.shop/privacy-policy" },
   }
 }
 

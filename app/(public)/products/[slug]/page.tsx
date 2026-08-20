@@ -36,11 +36,11 @@ export async function generateMetadata({
   return {
     title: product.name,
     description: desc,
-    alternates: { canonical: `https://universalbrew.in/products/${slug}` },
+    alternates: { canonical: `https://www.universalbrew.shop/products/${slug}` },
     openGraph: {
       title: `${product.name} | Universal Brew`,
       description: desc,
-      url: `https://universalbrew.in/products/${slug}`,
+      url: `https://www.universalbrew.shop/products/${slug}`,
       type: 'website',
       images: image ? [{ url: image, width: 800, height: 800, alt: product.name }] : [],
     },
@@ -98,8 +98,9 @@ export default async function ProductPage({
     <main className="min-h-screen bg-background">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* pb-24 on mobile reserves room for ProductPurchaseBox's fixed bottom bar */}
-      <div className="container mx-auto px-4 py-10 pb-24 md:pb-10">
+      {/* Room for ProductPurchaseBox's fixed mobile bar is reserved on the <footer>
+          (see globals.css) — the footer, not this container, is what ends the page. */}
+      <div className="container mx-auto px-4 py-10">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-8">
           <Link href="/products" className="inline-flex items-center gap-1.5 hover:text-primary transition-colors">

@@ -71,7 +71,7 @@ export function NavBar({ categories: initialCategories = [], tickerVisible = fal
       }}>
         {/* Brand */}
         <Link href={homeHref} style={{ textDecoration: "none", whiteSpace: "nowrap" }}>
-          <Logo variant="full" className="h-8 w-auto text-[oklch(0.75_0.15_85)]" />
+          <Logo variant="full" className="h-8 w-auto text-gold" />
         </Link>
 
         {/* Desktop links */}
