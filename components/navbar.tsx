@@ -8,6 +8,7 @@ import { ChevronDown, ChevronRight, Menu, X, ShoppingCart } from "lucide-react"
 import { AuthModal } from "@/components/auth-modal"
 import { CartSheet } from "@/components/cart-sheet"
 import { UserDropdown } from "@/components/user-dropdown"
+import { Logo } from "@/components/logo"
 import { useCart } from "@/lib/cart-context"
 
 type Category = { id: string; name: string; slug: string; products?: { id: string; name: string; slug: string }[] }
@@ -70,12 +71,7 @@ export function NavBar({ categories: initialCategories = [], tickerVisible = fal
       }}>
         {/* Brand */}
         <Link href={homeHref} style={{ textDecoration: "none", whiteSpace: "nowrap" }}>
-          <div style={{ fontFamily: "Georgia, serif", fontSize: "clamp(1.2rem, 2.5vw, 1.7rem)", fontWeight: 700, letterSpacing: "0.02em", color: "rgba(255,218,128,0.95)", textShadow: "0 0 40px rgba(200,140,50,0.35)", lineHeight: 1.1 }}>
-            Universal Brew
-          </div>
-          <div style={{ fontSize: "0.6rem", letterSpacing: "0.22em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginTop: "2px", textAlign: "center" }}>
-            The Coffee Masters
-          </div>
+          <Logo variant="full" className="h-8 w-auto text-[oklch(0.75_0.15_85)]" />
         </Link>
 
         {/* Desktop links */}
