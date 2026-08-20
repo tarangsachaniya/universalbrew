@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import type { Prisma } from '@prisma/client'
+import { findOverstockedProduct } from '@/lib/cart'
 
 const placeOrderSchema = z.object({
   addressId: z.string().min(1, 'Address is required'),
@@ -51,10 +52,11 @@ export async function POST(req: Request) {
   })
   if (cartItems.length === 0) return NextResponse.json({ error: 'Cart is empty' }, { status: 400 })
 
-  for (const item of cartItems) {
-    if (item.quantity > item.product.stock) {
-      return NextResponse.json({ error: `Insufficient stock for ${item.product.name}` }, { status: 400 })
-    }
+  // Sum every cart line per product before comparing against the shared stock pool — a
+  // product can occupy several lines at once (one per variant, plus a variant-less line).
+  const overstocked = findOverstockedProduct(cartItems)
+  if (overstocked) {
+    return NextResponse.json({ error: `Insufficient stock for ${overstocked}` }, { status: 400 })
   }
 
   // The selected variant's price is authoritative when present — this is what the customer is charged.

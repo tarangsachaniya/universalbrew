@@ -98,7 +98,8 @@ export default async function ProductPage({
     <main className="min-h-screen bg-background">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <div className="container mx-auto px-4 py-10">
+      {/* pb-24 on mobile reserves room for ProductPurchaseBox's fixed bottom bar */}
+      <div className="container mx-auto px-4 py-10 pb-24 md:pb-10">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-8">
           <Link href="/products" className="inline-flex items-center gap-1.5 hover:text-primary transition-colors">
@@ -175,7 +176,7 @@ export default async function ProductPage({
               price={Number(product.price)}
               compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
               stock={product.stock}
-              variants={product.variants.map((v) => ({
+              variants={(product.variants ?? []).map((v) => ({
                 id: v.id,
                 weight: v.weight,
                 price: Number(v.price),

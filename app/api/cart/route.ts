@@ -2,21 +2,13 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { cartItemInclude } from '@/lib/cart'
 
 const addSchema = z.object({
   productId: z.string().min(1),
   quantity: z.number().int().min(1).default(1),
   variantId: z.string().min(1).nullish(),
 })
-
-const cartItemInclude = {
-  product: {
-    select: { id: true, name: true, slug: true, price: true, featuredImage: true, stock: true },
-  },
-  variant: {
-    select: { id: true, weight: true, price: true, compareAtPrice: true, sku: true },
-  },
-}
 
 export async function GET() {
   const session = await auth()
@@ -57,18 +49,30 @@ export async function POST(req: Request) {
     }
   }
 
-  // Stock is a single shared pool on Product regardless of variant.
-  // Postgres does not consider two NULLs equal, so the @@unique([userId, productId, variantId])
-  // index does NOT dedupe rows where variantId IS NULL. Look those up with findFirst and
-  // create/update explicitly; only the fully non-null case can safely use upsert's ON CONFLICT.
-  const existing = variantId
-    ? await db.cartItem.findUnique({
-        where: { userId_productId_variantId: { userId, productId, variantId } },
-      })
-    : await db.cartItem.findFirst({ where: { userId, productId, variantId: null } })
+  // Every cart line this user holds for this product — across all variants AND the
+  // variant-less line. Fetching them together serves two purposes:
+  //   1. Stock is one shared pool on Product, so the check must be against the SUM of all
+  //      these lines (see lib/cart.ts). A per-line check would let 50 + 50 units through
+  //      against a pool of 50.
+  //   2. Postgres does not treat two NULLs as equal, so @@unique([userId, productId, variantId])
+  //      does NOT dedupe rows where variantId IS NULL — that line has to be matched here in
+  //      JS and written with an explicit create/update rather than an upsert's ON CONFLICT.
+  const productLines: { id: string; variantId: string | null; quantity: number }[] =
+    await db.cartItem.findMany({
+      where: { userId, productId },
+      select: { id: true, variantId: true, quantity: true },
+    })
+
+  const existing = productLines.find((line) => line.variantId === variantId)
+  const otherLinesQty = productLines.reduce(
+    (sum, line) => sum + (line.id === existing?.id ? 0 : line.quantity),
+    0
+  )
 
   const newQty = (existing?.quantity ?? 0) + quantity
-  if (newQty > product.stock) return NextResponse.json({ error: 'Insufficient stock' }, { status: 400 })
+  if (otherLinesQty + newQty > product.stock) {
+    return NextResponse.json({ error: 'Insufficient stock' }, { status: 400 })
+  }
 
   let item
   if (variantId) {
