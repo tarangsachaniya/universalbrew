@@ -1,7 +1,16 @@
 import { Sparkles, Dumbbell, Ban, Wheat, Coffee, Leaf } from "lucide-react"
 import { DEFAULT_ABOUT_BODY, DEFAULT_ABOUT_TITLE, parseAboutFeatures } from "@/lib/about"
+import { SectionHeading } from "@/components/section-heading"
 
-const FEATURE_ICONS = [Ban, Dumbbell, Sparkles, Wheat, Coffee, Leaf]
+const FEATURE_ICON_MAP: Record<string, typeof Ban> = {
+  "No Artificial Flavours": Ban,
+  "Keto Friendly": Dumbbell,
+  "No Added Sugar": Sparkles,
+  "Gluten-Free": Wheat,
+  "No Machines Required": Coffee,
+  "100% Pure Coffee": Leaf,
+}
+const FALLBACK_ICON = Coffee
 
 export function About({
   title,
@@ -14,9 +23,9 @@ export function About({
 }) {
   const displayTitle = title || DEFAULT_ABOUT_TITLE
   const displayParagraphs = (body || DEFAULT_ABOUT_BODY).split("\n\n").filter(Boolean)
-  const displayFeatures = parseAboutFeatures(features).map((feature, index) => ({
+  const displayFeatures = parseAboutFeatures(features).map((feature) => ({
     ...feature,
-    icon: FEATURE_ICONS[index % FEATURE_ICONS.length],
+    icon: FEATURE_ICON_MAP[feature.title] ?? FALLBACK_ICON,
   }))
 
   return (
@@ -24,18 +33,10 @@ export function About({
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-primary mb-4 text-balance">
-            {displayTitle}
-          </h2>
-          <div className="flex items-center justify-center gap-2 my-6">
-            <div className="h-px w-12 bg-primary/30" />
-            <div className="flex gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Coffee key={i} className="h-3 w-3 text-primary" />
-              ))}
-            </div>
-            <div className="h-px w-12 bg-primary/30" />
-          </div>
+          <SectionHeading
+            title={displayTitle}
+            headingClassName="lg:text-5xl text-balance"
+          />
           {displayParagraphs.map((para, i) => (
             <p key={i} className={`text-muted-foreground leading-relaxed ${i > 0 ? "mt-4" : ""}`}>
               {para}
