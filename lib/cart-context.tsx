@@ -12,11 +12,23 @@ type CartProduct = {
   stock: number
 }
 
+// Prisma Decimal fields arrive over the wire as numeric strings (Decimal.toJSON),
+// same as product.price already does — hence `number | string` plus Number(...) at read sites.
+type CartVariant = {
+  id: string
+  weight: string
+  price: number | string
+  compareAtPrice: number | string | null
+  sku: string | null
+} | null
+
 export type CartItemType = {
   id: string
   productId: string
+  variantId: string | null
   quantity: number
   product: CartProduct
+  variant: CartVariant
 }
 
 type CartContextValue = {
@@ -24,7 +36,7 @@ type CartContextValue = {
   count: number
   total: number
   loading: boolean
-  addItem: (productId: string, quantity?: number) => Promise<void>
+  addItem: (productId: string, quantity?: number, variantId?: string) => Promise<void>
   removeItem: (id: string) => Promise<void>
   updateQty: (id: string, quantity: number) => Promise<void>
   clearCart: () => void
@@ -51,11 +63,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { fetchCart() }, [fetchCart])
 
-  const addItem = async (productId: string, quantity = 1) => {
+  const addItem = async (productId: string, quantity = 1, variantId?: string) => {
     const res = await fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, quantity }),
+      body: JSON.stringify({ productId, quantity, variantId }),
     })
     if (!res.ok) {
       const body = await res.json()
@@ -63,7 +75,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
     const newItem: CartItemType = await res.json()
     setItems((prev) => {
-      const idx = prev.findIndex((i) => i.productId === productId)
+      // Match on product AND variant — two variants of the same product are two cart
+      // lines. The server always sends `variantId: null` (never undefined) so normalise
+      // both sides before comparing.
+      const idx = prev.findIndex(
+        (i) => i.productId === productId && (i.variantId ?? null) === (variantId ?? null)
+      )
       if (idx >= 0) {
         const updated = [...prev]
         updated[idx] = newItem
@@ -91,7 +108,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => setItems([])
 
   const count = items.reduce((s, i) => s + i.quantity, 0)
-  const total = items.reduce((s, i) => s + Number(i.product.price) * i.quantity, 0)
+  const total = items.reduce((s, i) => s + Number(i.variant?.price ?? i.product.price) * i.quantity, 0)
 
   return (
     <CartContext.Provider value={{ items, count, total, loading, addItem, removeItem, updateQty, clearCart, refetch: fetchCart }}>

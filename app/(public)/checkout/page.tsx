@@ -383,9 +383,11 @@ export default function CheckoutPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">{item.product.name}</p>
-                          <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Qty: {item.quantity}{item.variant ? ` · ${item.variant.weight}` : ""}
+                          </p>
                         </div>
-                        <p className="text-sm font-semibold text-foreground shrink-0">₹{(Number(item.product.price) * item.quantity).toFixed(2)}</p>
+                        <p className="text-sm font-semibold text-foreground shrink-0">₹{(Number(item.variant?.price ?? item.product.price) * item.quantity).toFixed(2)}</p>
                       </div>
                     )
                   })}

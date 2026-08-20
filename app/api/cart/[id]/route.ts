@@ -21,7 +21,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const updated = await db.cartItem.update({
     where: { id },
     data: { quantity: parsed.data.quantity },
-    include: { product: { select: { id: true, name: true, slug: true, price: true, featuredImage: true, stock: true } } },
+    // Keep this shape identical to POST /api/cart so the client always has variant
+    // pricing available after any cart mutation.
+    include: {
+      product: { select: { id: true, name: true, slug: true, price: true, featuredImage: true, stock: true } },
+      variant: { select: { id: true, weight: true, price: true, compareAtPrice: true, sku: true } },
+    },
   })
   return NextResponse.json(updated)
 }

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Minus, Plus, Trash2, ShoppingCart } from "lucide-react"
 import { getWebPUrl } from "@/lib/cloudinary-url"
+import { formatPrice } from "@/lib/format-price"
 
 type CartSheetProps = {
   open: boolean
@@ -44,6 +45,7 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
               {items.map((item) => {
                 const imgUrl = item.product.featuredImage ? getWebPUrl(item.product.featuredImage, 80) : null
+                const unitPrice = Number(item.variant?.price ?? item.product.price)
                 return (
                   <div key={item.id} className="flex gap-3">
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-secondary shrink-0">
@@ -62,10 +64,13 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
                       >
                         {item.product.name}
                       </Link>
+                      {item.variant && (
+                        <span className="block text-xs text-muted-foreground">{item.variant.weight}</span>
+                      )}
                       <p className="text-sm text-primary font-semibold mt-0.5">
-                        ₹{(Number(item.product.price) * item.quantity).toFixed(2)}
+                        {formatPrice(unitPrice * item.quantity)}
                       </p>
-                      <p className="text-xs text-muted-foreground">₹{Number(item.product.price).toFixed(2)} each</p>
+                      <p className="text-xs text-muted-foreground">{formatPrice(unitPrice)} each</p>
 
                       <div className="flex items-center gap-2 mt-2">
                         <button
@@ -101,7 +106,7 @@ export function CartSheet({ open, onOpenChange }: CartSheetProps) {
             <div className="border-t px-6 py-4 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-semibold">₹{total.toFixed(2)}</span>
+                <span className="font-semibold">{formatPrice(total)}</span>
               </div>
               <Separator />
               <Button

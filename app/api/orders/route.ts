@@ -23,7 +23,10 @@ export async function GET() {
 }
 
 type CartItemWithProduct = Prisma.CartItemGetPayload<{
-  include: { product: { select: { id: true; name: true; price: true; stock: true; featuredImage: true; slug: true } } }
+  include: {
+    product: { select: { id: true; name: true; price: true; stock: true; featuredImage: true; slug: true } }
+    variant: { select: { price: true; weight: true; sku: true } }
+  }
 }>
 
 export async function POST(req: Request) {
@@ -41,7 +44,10 @@ export async function POST(req: Request) {
 
   const cartItems: CartItemWithProduct[] = await prisma.cartItem.findMany({
     where: { userId: session.user.id },
-    include: { product: { select: { id: true, name: true, price: true, stock: true, featuredImage: true, slug: true } } },
+    include: {
+      product: { select: { id: true, name: true, price: true, stock: true, featuredImage: true, slug: true } },
+      variant: { select: { price: true, weight: true, sku: true } },
+    },
   })
   if (cartItems.length === 0) return NextResponse.json({ error: 'Cart is empty' }, { status: 400 })
 
@@ -51,7 +57,11 @@ export async function POST(req: Request) {
     }
   }
 
-  const subtotal = cartItems.reduce((sum: number, item: CartItemWithProduct) => sum + Number(item.product.price) * item.quantity, 0)
+  // The selected variant's price is authoritative when present — this is what the customer is charged.
+  const subtotal = cartItems.reduce(
+    (sum: number, item: CartItemWithProduct) => sum + Number(item.variant?.price ?? item.product.price) * item.quantity,
+    0
+  )
 
   // Validate coupon server-side
   let discount = 0
@@ -84,7 +94,8 @@ export async function POST(req: Request) {
   const itemsSnapshot = cartItems.map((item: CartItemWithProduct) => ({
     productId: item.product.id,
     name: item.product.name,
-    price: Number(item.product.price),
+    price: Number(item.variant?.price ?? item.product.price),
+    weight: item.variant?.weight ?? null,
     quantity: item.quantity,
     image: item.product.featuredImage,
     slug: item.product.slug,

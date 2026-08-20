@@ -52,7 +52,7 @@ export const getProductBySlug = unstable_cache(
   async (slug: string) => {
     return prisma.product.findUnique({
       where: { slug },
-      include: { category: true },
+      include: { category: true, variants: { orderBy: { price: 'asc' } } },
     })
   },
   ['product-by-slug'],

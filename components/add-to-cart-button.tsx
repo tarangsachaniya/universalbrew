@@ -12,9 +12,11 @@ type AddToCartButtonProps = {
   productId: string
   stock: number
   className?: string
+  quantity?: number
+  variantId?: string
 }
 
-export function AddToCartButton({ productId, stock, className }: AddToCartButtonProps) {
+export function AddToCartButton({ productId, stock, className, quantity = 1, variantId }: AddToCartButtonProps) {
   const { status } = useSession()
   const { addItem } = useCart()
   const [loading, setLoading] = useState(false)
@@ -36,7 +38,7 @@ export function AddToCartButton({ productId, stock, className }: AddToCartButton
     }
     setLoading(true)
     try {
-      await addItem(productId)
+      await addItem(productId, quantity, variantId)
       setAdded(true)
       toast.success("Added to cart")
       setTimeout(() => setAdded(false), 2000)

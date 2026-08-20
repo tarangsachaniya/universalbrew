@@ -14,11 +14,11 @@ export async function generateStaticParams() {
   return products.map((p) => ({ slug: p.slug }))
 }
 
-import { getWebPUrl } from '@/lib/cloudinary'
+import { getWebPUrl } from '@/lib/cloudinary-url'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Package } from 'lucide-react'
 import { ProductCarousel } from '@/components/product-carousel'
-import { AddToCartButton } from '@/components/add-to-cart-button'
+import { ProductPurchaseBox } from '@/components/product-purchase-box'
 import { ProductCard } from '@/components/product-card'
 
 export async function generateMetadata({
@@ -141,21 +141,27 @@ export default async function ProductPage({
 
             <h1 className="text-3xl md:text-4xl font-serif text-foreground leading-tight">{product.name}</h1>
 
+            {(product.featuredProduct || product.badges.length > 0) && (
+              <div className="flex flex-wrap items-center gap-2">
+                {product.featuredProduct && (
+                  <Badge className="bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400">
+                    Featured
+                  </Badge>
+                )}
+                {product.badges.map((badge) => (
+                  <Badge key={badge} variant="secondary">
+                    {badge}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
             {product.description && (
               <div
                 className="prose prose-sm prose-amber max-w-none text-muted-foreground leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: product.description }}
               />
             )}
-
-            <div className="flex items-center gap-4 pt-1">
-              <span className="text-4xl font-bold text-primary">₹{Number(product.price).toFixed(2)}</span>
-              {product.featuredProduct && (
-                <Badge className="bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400">
-                  Featured
-                </Badge>
-              )}
-            </div>
 
             <div className="flex items-center gap-2">
               <div className={`h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-400'}`} />
@@ -164,7 +170,18 @@ export default async function ProductPage({
               </span>
             </div>
 
-            <AddToCartButton productId={product.id} stock={product.stock} />
+            <ProductPurchaseBox
+              productId={product.id}
+              price={Number(product.price)}
+              compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
+              stock={product.stock}
+              variants={product.variants.map((v) => ({
+                id: v.id,
+                weight: v.weight,
+                price: Number(v.price),
+                compareAtPrice: v.compareAtPrice ? Number(v.compareAtPrice) : null,
+              }))}
+            />
 
             {product.content && (
               <div className="pt-6 border-t border-border/60 space-y-3">
