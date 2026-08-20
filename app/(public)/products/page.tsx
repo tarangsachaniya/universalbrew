@@ -15,14 +15,15 @@ export const revalidate = 300
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; page?: string }>
+  searchParams: Promise<{ category?: string; page?: string; sort?: string }>
 }) {
   const params = await searchParams
   const page = parseInt(params.page ?? '1')
   const categorySlug = params.category
+  const sortParam = params.sort === 'price-asc' || params.sort === 'price-desc' ? params.sort : 'featured'
 
   const [{ items, total, limit }, categories] = await Promise.all([
-    getProducts({ categorySlug, page, limit: 20 }),
+    getProducts({ categorySlug, page, limit: 20, sort: sortParam }),
     getCategories(),
   ])
 
@@ -48,9 +49,9 @@ export default async function ProductsPage({
       <div className="container mx-auto px-4 py-10">
         {/* Category Filter */}
         {categories.length > 0 && (
-          <div className="flex flex-wrap gap-2 justify-center mb-10">
+          <div className="flex flex-wrap gap-2 justify-center mb-6">
             <Link
-              href="/products"
+              href={`/products${sortParam !== 'featured' ? `?sort=${sortParam}` : ''}`}
               className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase transition-all border ${
                 !categorySlug
                   ? 'bg-primary text-primary-foreground border-primary shadow-sm'
@@ -62,7 +63,7 @@ export default async function ProductsPage({
             {categories.map((cat) => (
               <Link
                 key={cat.id}
-                href={`/products?category=${cat.slug}`}
+                href={`/products?category=${cat.slug}${sortParam !== 'featured' ? `&sort=${sortParam}` : ''}`}
                 className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase transition-all border ${
                   categorySlug === cat.slug
                     ? 'bg-primary text-primary-foreground border-primary shadow-sm'
@@ -74,6 +75,32 @@ export default async function ProductsPage({
             ))}
           </div>
         )}
+
+        {/* Sort Control */}
+        <div className="flex flex-col items-center gap-2 mb-10">
+          <span className="text-[10px] tracking-widest uppercase text-muted-foreground/70">Sort by</span>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {(
+              [
+                { value: 'featured', label: 'Featured' },
+                { value: 'price-asc', label: 'Price: Low to High' },
+                { value: 'price-desc', label: 'Price: High to Low' },
+              ] as const
+            ).map((option) => (
+              <Link
+                key={option.value}
+                href={`/products?sort=${option.value}${categorySlug ? `&category=${categorySlug}` : ''}`}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase transition-all border ${
+                  sortParam === option.value
+                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                    : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                }`}
+              >
+                {option.label}
+              </Link>
+            ))}
+          </div>
+        </div>
 
         {/* Grid */}
         {items.length === 0 ? (
@@ -114,7 +141,7 @@ export default async function ProductsPage({
           <div className="flex items-center justify-center gap-3 mt-14">
             {page > 1 ? (
               <Link
-                href={`/products?page=${page - 1}${categorySlug ? `&category=${categorySlug}` : ''}`}
+                href={`/products?page=${page - 1}${categorySlug ? `&category=${categorySlug}` : ''}${sortParam !== 'featured' ? `&sort=${sortParam}` : ''}`}
                 className="px-5 py-2 text-sm rounded-full border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground transition-all"
               >
                 ← Previous
@@ -129,7 +156,7 @@ export default async function ProductsPage({
             </span>
             {page < totalPages ? (
               <Link
-                href={`/products?page=${page + 1}${categorySlug ? `&category=${categorySlug}` : ''}`}
+                href={`/products?page=${page + 1}${categorySlug ? `&category=${categorySlug}` : ''}${sortParam !== 'featured' ? `&sort=${sortParam}` : ''}`}
                 className="px-5 py-2 text-sm rounded-full border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground transition-all"
               >
                 Next →
