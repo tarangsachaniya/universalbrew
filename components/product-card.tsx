@@ -48,9 +48,13 @@ export function ProductCard({
         display: "flex",
         flexDirection: "column",
         background: "var(--card)",
-        transition: "transform 0.3s ease",
+        transition: "all 0.3s ease",
+        borderRadius: "0.75rem",
+        overflow: "hidden",
+        border: "1px solid var(--border)",
+        boxShadow: "0 4px 24px -12px rgba(0,0,0,0.08)",
       }}
-      className="group"
+      className="group hover:shadow-lg hover:-translate-y-1"
     >
       {/* ── Image area ─────────────────────────────────────────── */}
       <Link href={`/products/${slug}`} tabIndex={-1} aria-hidden style={{ display: "block", position: "relative" }}>
@@ -114,7 +118,7 @@ export function ProductCard({
       </Link>
 
       {/* ── Info area ──────────────────────────────────────────── */}
-      <div style={{ padding: "0.85rem 0 0.25rem", flex: 1, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+      <div style={{ padding: "1.25rem", flex: 1, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
         {/* Category */}
         {category && (
           <Link
