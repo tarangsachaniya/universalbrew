@@ -152,6 +152,41 @@ export function HeroSlidesForm({ initialData, mode }: HeroSlidesFormProps) {
                       />
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">CTA Primary Text</Label>
+                      <Input
+                        value={slide.ctaPrimaryText ?? ""}
+                        onChange={(e) => updateSlide(idx, "ctaPrimaryText", e.target.value)}
+                        placeholder="Shop Now"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">CTA Primary Link</Label>
+                      <Input
+                        value={slide.ctaPrimaryHref ?? ""}
+                        onChange={(e) => updateSlide(idx, "ctaPrimaryHref", e.target.value)}
+                        placeholder="/products"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">CTA Secondary Text</Label>
+                      <Input
+                        value={slide.ctaSecondaryText ?? ""}
+                        onChange={(e) => updateSlide(idx, "ctaSecondaryText", e.target.value)}
+                        placeholder="Our Story"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">CTA Secondary Link</Label>
+                      <Input
+                        value={slide.ctaSecondaryHref ?? ""}
+                        onChange={(e) => updateSlide(idx, "ctaSecondaryHref", e.target.value)}
+                        placeholder="/about-us"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <button

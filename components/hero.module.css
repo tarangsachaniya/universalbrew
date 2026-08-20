@@ -1,18 +1,16 @@
-/* Spacer gives the page scroll height = TOTAL slides × 100vh */
-.wrapper {
-  height: calc(5 * 100vh);
-  position: relative;
-}
+/* Sizing (position/width/height/overflow/background) now comes from Tailwind
+   classes on the <section> element directly. This file only keeps what
+   Tailwind can't easily express: the vignette pseudo-element, a height fix
+   for Embla's inner viewport div (components/ui/carousel.tsx's
+   CarouselContent doesn't expose a className prop for it, so Tailwind's
+   h-full on <CarouselContent> only reaches the *inner* flex row, not this
+   outer div — without an explicit height here the percentage-height chain
+   down to the slide images collapses to 0), the Ken Burns zoom, and the
+   bouncing scroll-to-content chevron.
+*/
 
-/* Carousel sticks to top while user scrolls through the spacer */
 .root {
   position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  background: #000;
-  font-family: 'Georgia', serif;
-  cursor: default;
 }
 
 /* Cinematic vignette */
@@ -20,34 +18,30 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, transparent 42%, rgba(0,0,0,0.55) 100%);
+  background: radial-gradient(ellipse at center, transparent 42%, rgba(0, 0, 0, 0.55) 100%);
   z-index: 8;
   pointer-events: none;
 }
 
-.slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  z-index: 1;
-  will-change: opacity;
-}
-
-.slideImg {
-  width: 100%;
+/* Embla's outer viewport div (ref target inside CarouselContent) has no
+   className prop exposed, so it never receives Tailwind's h-full. Scoped
+   under .root so it doesn't affect other Carousel usages in the app. */
+.root :global([data-slot='carousel-content']) {
   height: 100%;
-  object-fit: cover;
-  will-change: transform;
-  transform: scale(1);
 }
 
-.slide.active .slideImg {
+.kenBurns {
   animation: duskKenBurns 18s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
 @keyframes duskKenBurns {
-  0%   { transform: scale(1.0)  translate(0, 0);       }
-  100% { transform: scale(1.1)  translate(-1.5%, -1%); }
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.1) translate(-1.5%, -1%);
+  }
 }
 
 .overlay {
@@ -55,164 +49,12 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(0,0,0,0.06)  0%,
-    rgba(0,0,0,0)     30%,
-    rgba(0,0,0,0.22)  65%,
-    rgba(0,0,0,0.74) 100%
+    rgba(0, 0, 0, 0.06) 0%,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(0, 0, 0, 0.22) 65%,
+    rgba(0, 0, 0, 0.74) 100%
   );
   pointer-events: none;
-}
-
-.info {
-  position: absolute;
-  bottom: 13%;
-  left: 50%;
-  text-align: center;
-  color: #fff;
-  opacity: 0;
-  pointer-events: none;
-  width: 80%;
-  max-width: 600px;
-  transform: translateX(-50%) translateY(16px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.slide.active .info {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-  transition: opacity 1.6s ease 0.9s,
-              transform 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.9s;
-}
-
-.slideTitle {
-  font-size: clamp(1.1rem, 3vw, 1.9rem);
-  font-weight: 300;
-  letter-spacing: 0.45em;
-  text-transform: uppercase;
-  color: rgba(255, 218, 140, 0.95);
-  margin-bottom: 10px;
-  text-shadow: 0 2px 30px rgba(0,0,0,0.45);
-}
-
-.slideSubtitle {
-  font-size: clamp(0.62rem, 1.4vw, 0.82rem);
-  font-weight: 300;
-  letter-spacing: 0.28em;
-  color: rgba(255, 255, 255, 0.48);
-  text-transform: uppercase;
-}
-
-/* ── Hero overlay navbar ── */
-.heroNav {
-  position: fixed;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.8rem 1.5rem;
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(8px);
-  border-radius: 8px;
-  max-width: 90%;
-  width: fit-content;
-  pointer-events: auto;
-  gap: 2.5rem;
-}
-
-.heroNavLinks {
-  display: flex;
-  align-items: center;
-  gap: 1.6rem;
-  flex: 1;
-}
-
-.heroNavLink {
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.heroNavLink:hover {
-  color: rgba(255, 218, 140, 0.95);
-}
-
-.heroNavAuth {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex: 1;
-  justify-content: flex-end;
-}
-
-.heroNavBtn {
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.2s;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.heroNavBtn:hover {
-  color: rgba(255, 218, 140, 0.95);
-}
-
-.heroNavBtnOutline {
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.3rem 0.85rem;
-  border-radius: 3px;
-  transition: border-color 0.2s, color 0.2s;
-}
-
-.heroNavBtnOutline:hover {
-  border-color: rgba(255, 218, 140, 0.6);
-  color: rgba(255, 218, 140, 0.95);
-}
-
-/* Brand mark — absolutely centered over nav */
-.brandMark {
-  position: relative;
-  margin: 0;
-  text-align: center;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-  .heroNavLinks {
-    display: none;
-  }
-  .heroNav {
-    padding: 1.1rem 1.25rem;
-  }
-}
-
-.brandName {
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  font-weight: 700;
-  font-family: Georgia, serif;
-  letter-spacing: 0.02em;
-  color: rgba(255, 218, 128, 0.95);
-  text-shadow: 0 0 40px rgba(200, 140, 50, 0.35);
-}
-
-.brandSub {
-  font-size: 0.62rem;
-  letter-spacing: 0.22em;
-  color: rgba(255, 255, 255, 0.45);
-  text-transform: uppercase;
-  margin-top: 2px;
 }
 
 .scrollArrow {
@@ -235,9 +77,11 @@
 }
 
 @keyframes scrollBounce {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%       { transform: translateX(-50%) translateY(8px); }
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(8px);
+  }
 }
-
-
-
