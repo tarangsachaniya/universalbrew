@@ -14,7 +14,7 @@ export const getFeaturedProducts = unstable_cache(
 )
 
 export const getProducts = unstable_cache(
-  async (opts?: { categorySlug?: string; page?: number; limit?: number; sort?: 'featured' | 'price-asc' | 'price-desc' }) => {
+  async (opts?: { categorySlug?: string; page?: number; limit?: number; sort?: 'featured' | 'price-asc' | 'price-desc' | 'newest' }) => {
     const page = opts?.page ?? 1
     const limit = opts?.limit ?? 20
     const skip = (page - 1) * limit
@@ -27,8 +27,9 @@ export const getProducts = unstable_cache(
     }
 
     const orderBy =
-      opts?.sort === 'price-asc' ? { price: 'asc' as const } :
+      opts?.sort === 'price-asc'  ? { price: 'asc' as const } :
       opts?.sort === 'price-desc' ? { price: 'desc' as const } :
+      opts?.sort === 'newest'     ? { createdAt: 'desc' as const } :
       [{ featuredProduct: 'desc' as const }, { createdAt: 'desc' as const }]
 
     const [items, total] = await Promise.all([

@@ -2,9 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Coffee, Star } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Coffee } from "lucide-react"
 import { AddToCartButton } from "@/components/add-to-cart-button"
 import { getWebPUrl, getBlurUrl } from "@/lib/cloudinary-url"
 import { formatPrice, getDiscountPercent } from "@/lib/format-price"
@@ -32,118 +30,178 @@ export function ProductCard({
   compareAtPrice,
   featuredImage,
   stock,
-  description,
   category,
   badges,
   rating,
   reviewCount,
 }: ProductCardProps) {
-  const webpImg = featuredImage ? getWebPUrl(featuredImage, 400) : null
-  const blurUrl = featuredImage ? getBlurUrl(featuredImage) : ""
+  const webpImg        = featuredImage ? getWebPUrl(featuredImage, 500) : null
+  const blurUrl        = featuredImage ? getBlurUrl(featuredImage) : ""
   const discountPercent = getDiscountPercent(price, compareAtPrice)
-  const hasRating = typeof rating === "number" && !!reviewCount && reviewCount > 0
+  const hasRating      = typeof rating === "number" && !!reviewCount && reviewCount > 0
+  const outOfStock     = stock === 0
 
   return (
-    <div className="group relative bg-card rounded-xl overflow-hidden border border-border/50 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
-      {/* Image area */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-muted">
-        {webpImg ? (
-          <Image
-            src={webpImg}
-            alt={name}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            {...(blurUrl ? { placeholder: "blur" as const, blurDataURL: blurUrl } : {})}
-          />
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-amber-50/60">
-            <Coffee className="h-12 w-12 text-primary/30 mb-2" />
-            <span className="text-xs text-primary/40 font-medium px-2 text-center">{name}</span>
-          </div>
-        )}
+    <article
+      style={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        background: "var(--card)",
+        transition: "transform 0.3s ease",
+      }}
+      className="group"
+    >
+      {/* ── Image area ─────────────────────────────────────────── */}
+      <Link href={`/products/${slug}`} tabIndex={-1} aria-hidden style={{ display: "block", position: "relative" }}>
+        <div
+          style={{
+            position: "relative",
+            aspectRatio: "3 / 4",
+            overflow: "hidden",
+            background: "var(--secondary)",
+          }}
+        >
+          {webpImg ? (
+            <Image
+              src={webpImg}
+              alt={name}
+              fill
+              className="object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 22vw"
+              {...(blurUrl ? { placeholder: "blur" as const, blurDataURL: blurUrl } : {})}
+            />
+          ) : (
+            <div style={{
+              width: "100%", height: "100%",
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center",
+              background: "var(--cream-warm, #f5f0ea)",
+            }}>
+              <Coffee
+                style={{ width: "2.5rem", height: "2.5rem", color: "var(--coffee-mid)", opacity: 0.35, marginBottom: "0.5rem" }}
+              />
+              <span style={{ fontSize: "0.7rem", color: "var(--coffee-mid)", opacity: 0.5, textAlign: "center", padding: "0 0.75rem" }}>
+                {name}
+              </span>
+            </div>
+          )}
 
-        {/* Stock badge */}
-        <div className="absolute top-2 right-2 z-10">
-          {stock === 0 ? (
-            <span className="text-[10px] font-semibold bg-red-500/90 text-white px-2 py-0.5 rounded-full">
-              Out of Stock
-            </span>
-          ) : stock <= 5 ? (
-            <span className="text-[10px] font-semibold bg-amber-500/90 text-white px-2 py-0.5 rounded-full">
-              Only {stock} left
-            </span>
-          ) : null}
-        </div>
+          {/* Badges — only out-of-stock and discount; no clutter */}
+          {outOfStock && (
+            <div style={{
+              position: "absolute", top: "0.75rem", left: "0.75rem",
+              background: "rgba(15,5,0,0.72)", color: "rgba(255,255,255,0.9)",
+              fontSize: "0.55rem", letterSpacing: "0.15em", fontWeight: 600,
+              textTransform: "uppercase", padding: "0.3rem 0.6rem",
+            }}>
+              Sold Out
+            </div>
+          )}
+          {!outOfStock && discountPercent !== null && (
+            <div style={{
+              position: "absolute", top: "0.75rem", right: "0.75rem",
+              background: "var(--primary)", color: "var(--primary-foreground)",
+              fontSize: "0.55rem", letterSpacing: "0.12em", fontWeight: 600,
+              textTransform: "uppercase", padding: "0.3rem 0.6rem",
+            }}>
+              −{discountPercent}%
+            </div>
+          )}
 
-        {/* Discount badge */}
-        {discountPercent !== null && (
-          <div className="absolute top-2 left-2 z-10">
-            <span className="text-[10px] font-semibold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-              -{discountPercent}%
-            </span>
-          </div>
-        )}
-
-        {/* CTA overlay — visible on hover (desktop) or always (touch) */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 [@media(hover:none)]:translate-y-0 transition-transform duration-300 z-20 p-3 bg-gradient-to-t from-black/80 to-black/20 flex flex-col gap-2">
-          <AddToCartButton
-            productId={id}
-            stock={stock}
-            className="w-full !py-1.5 !text-xs !h-auto bg-amber-500 hover:bg-amber-400 text-black font-semibold border-0"
-          />
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full h-auto py-1.5 text-xs border-white/50 text-white bg-white/10 hover:bg-white/20 hover:text-white"
-            asChild
+          {/* Quick Add overlay — appears on hover */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: "0.75rem",
+              background: "linear-gradient(to top, rgba(10,4,0,0.82), transparent)",
+              transform: "translateY(100%)",
+              transition: "transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
+            }}
+            className="group-hover:!translate-y-0"
           >
-            <Link href={`/products/${slug}`}>View Product</Link>
-          </Button>
+            <AddToCartButton
+              productId={id}
+              stock={stock}
+              className="w-full !py-2 !text-[0.62rem] !h-auto !tracking-[0.16em] bg-amber-500 hover:bg-amber-400 text-black font-semibold border-0 uppercase"
+            />
+          </div>
         </div>
-      </div>
+      </Link>
 
-      {/* Info area */}
-      <div className="p-3 flex flex-col gap-1 flex-1">
+      {/* ── Info area ──────────────────────────────────────────── */}
+      <div style={{ padding: "0.85rem 0 0.25rem", flex: 1, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+        {/* Category */}
         {category && (
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+          <Link
+            href={`/categories/${category.slug}`}
+            style={{
+              fontSize: "0.55rem",
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "var(--muted-foreground)",
+              fontWeight: 500,
+              textDecoration: "none",
+            }}
+          >
             {category.name}
-          </span>
+          </Link>
         )}
-        <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">{name}</h3>
-        {badges && badges.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1">
-            {badges.slice(0, 2).map((badge) => (
-              <Badge key={badge} variant="secondary" className="text-[9px] px-1.5 py-0 h-4 leading-4 font-medium">
-                {badge}
-              </Badge>
-            ))}
-            {badges.length > 2 && (
-              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 leading-4 font-medium">
-                +{badges.length - 2}
-              </Badge>
-            )}
-          </div>
-        )}
-        {description && (
-          <p
-            className="text-xs text-muted-foreground line-clamp-1"
-            dangerouslySetInnerHTML={{ __html: description }}
-          />
-        )}
+
+        {/* Name */}
+        <Link
+          href={`/products/${slug}`}
+          style={{ textDecoration: "none" }}
+        >
+          <h3 style={{
+            fontFamily: "var(--font-playfair), Georgia, serif",
+            fontSize: "1rem",
+            fontWeight: 400,
+            lineHeight: 1.3,
+            color: "var(--foreground)",
+            letterSpacing: "-0.005em",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}>
+            {name}
+          </h3>
+        </Link>
+
+        {/* Rating */}
         {hasRating && (
-          <div className="flex items-center gap-1">
-            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-            <span className="text-xs text-muted-foreground font-medium">{rating!.toFixed(1)}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+            {[1,2,3,4,5].map(s => (
+              <svg key={s} width="10" height="10" viewBox="0 0 10 10" fill={s <= Math.round(rating!) ? "var(--gold)" : "var(--border)"}>
+                <polygon points="5,0.5 6.2,3.8 9.5,3.8 6.9,5.8 7.9,9 5,7.1 2.1,9 3.1,5.8 0.5,3.8 3.8,3.8" />
+              </svg>
+            ))}
+            <span style={{ fontSize: "0.65rem", color: "var(--muted-foreground)", marginLeft: "0.2rem" }}>
+              ({reviewCount})
+            </span>
           </div>
         )}
-        <div className="flex items-baseline gap-2 mt-auto pt-1">
-          <p className="text-primary font-bold text-base">{formatPrice(price)}</p>
+
+        {/* Price */}
+        <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginTop: "auto", paddingTop: "0.35rem" }}>
+          <span style={{
+            fontSize: "0.95rem",
+            fontWeight: 600,
+            color: "var(--foreground)",
+          }}>
+            {formatPrice(price)}
+          </span>
           {compareAtPrice != null && discountPercent !== null && (
-            <p className="text-muted-foreground text-xs line-through">{formatPrice(compareAtPrice)}</p>
+            <span style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", textDecoration: "line-through" }}>
+              {formatPrice(compareAtPrice)}
+            </span>
           )}
         </div>
       </div>
-    </div>
+    </article>
   )
 }

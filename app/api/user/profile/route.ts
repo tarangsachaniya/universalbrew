@@ -41,7 +41,7 @@ export async function PATCH(req: Request) {
     }
     const user = await prisma.user.findUnique({ where: { id: session.user.id } })
     if (!user) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    const valid = await bcrypt.compare(currentPassword, user.password)
+    const valid = await bcrypt.compare(currentPassword, user.password ?? '')
     if (!valid) return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 })
     updateData.password = await bcrypt.hash(newPassword, 12)
   }

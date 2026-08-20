@@ -1,11 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ChevronDown } from "lucide-react"
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel"
-import { Button } from "@/components/ui/button"
+import { ArrowRight } from "lucide-react"
 import styles from "./hero.module.css"
 import { getWebPUrl } from "@/lib/cloudinary-url"
 import { parseAboutFeatures } from "@/lib/about"
@@ -54,148 +52,230 @@ const STATIC_SLIDES: HeroSlide[] = [
   },
 ]
 
-const AUTOPLAY_MS = 6000
-
-/** Shared so the non-heading slide titles are pixel-identical to the <h1> on slide 0. */
-const HERO_TITLE_CLASS = "font-serif text-4xl sm:text-5xl lg:text-6xl font-medium max-w-3xl leading-tight"
-
 function parseSlides(raw: unknown): HeroSlide[] {
   if (!Array.isArray(raw) || raw.length === 0) return []
-  return raw.filter(
-    (slide): slide is HeroSlide =>
-      typeof slide === "object" && slide !== null && "url" in slide && "title" in slide
-  ).map((slide) => ({
-    url: slide.url,
-    mobileUrl: slide.mobileUrl ?? undefined,
-    title: slide.title,
-    subtitle: slide.subtitle ?? "",
-    ctaPrimaryText: slide.ctaPrimaryText ?? undefined,
-    ctaPrimaryHref: slide.ctaPrimaryHref ?? undefined,
-    ctaSecondaryText: slide.ctaSecondaryText ?? undefined,
-    ctaSecondaryHref: slide.ctaSecondaryHref ?? undefined,
-  }))
+  return raw
+    .filter((s): s is HeroSlide => typeof s === "object" && s !== null && "url" in s && "title" in s)
+    .map((s) => ({
+      url:              s.url,
+      mobileUrl:        s.mobileUrl ?? undefined,
+      title:            s.title,
+      subtitle:         s.subtitle ?? "",
+      ctaPrimaryText:   s.ctaPrimaryText ?? undefined,
+      ctaPrimaryHref:   s.ctaPrimaryHref ?? undefined,
+      ctaSecondaryText: s.ctaSecondaryText ?? undefined,
+      ctaSecondaryHref: s.ctaSecondaryHref ?? undefined,
+    }))
 }
 
-/** Applies sitewide CTA defaults for slides that predate this feature (or the static fallback). */
 function withCtaDefaults(slide: HeroSlide): HeroSlide {
-  const hasPrimary = slide.ctaPrimaryText || slide.ctaPrimaryHref
-  const hasSecondary = slide.ctaSecondaryText || slide.ctaSecondaryHref
   return {
     ...slide,
-    ctaPrimaryText: hasPrimary ? slide.ctaPrimaryText : "Shop Now",
-    ctaPrimaryHref: hasPrimary ? slide.ctaPrimaryHref : "/products",
-    ctaSecondaryText: hasSecondary ? slide.ctaSecondaryText : "Our Story",
-    ctaSecondaryHref: hasSecondary ? slide.ctaSecondaryHref : "/about-us",
+    ctaPrimaryText:   slide.ctaPrimaryText   || "Shop Now",
+    ctaPrimaryHref:   slide.ctaPrimaryHref   || "/products",
+    ctaSecondaryText: slide.ctaSecondaryText || "Our Story",
+    ctaSecondaryHref: slide.ctaSecondaryHref || "/about-us",
   }
 }
+
+function pad(n: number) { return String(n).padStart(2, "0") }
 
 export function Hero({ data }: HeroProps) {
   const parsed = data ? parseSlides(data.slides) : []
   const slides: HeroSlide[] = (parsed.length > 0
-    ? parsed.map((slide) => ({
-        ...slide,
-        url: getWebPUrl(slide.url),
-        mobileUrl: slide.mobileUrl ? getWebPUrl(slide.mobileUrl) : undefined,
-      }))
+    ? parsed.map((s) => ({ ...s, url: getWebPUrl(s.url), mobileUrl: s.mobileUrl ? getWebPUrl(s.mobileUrl) : undefined }))
     : STATIC_SLIDES
   ).map(withCtaDefaults)
 
-  const trustFeatures = parseAboutFeatures(data?.aboutFeatures).slice(0, 3)
+  // Determine trust features, but we don't necessarily display them directly in the hero slides anymore,
+  // leaving parseAboutFeatures just in case it's used elsewhere or you want it back later.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const trustFeatures = parseAboutFeatures(data?.aboutFeatures).slice(0, 4)
 
-  const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
+  const sectionRef = useRef<HTMLDivElement | null>(null)
+  const currentRef = useRef(0)
 
+  /* ── Native Scroll-Driven Sequence ───────────────────────────── */
   useEffect(() => {
-    if (!api) return
-    setCurrent(api.selectedScrollSnap())
-    api.on("select", () => setCurrent(api.selectedScrollSnap()))
-  }, [api])
+    const el = sectionRef.current
+    if (!el || slides.length <= 1) return
 
-  useEffect(() => {
-    if (!api || slides.length <= 1) return
-    const id = setInterval(() => api.scrollNext(), AUTOPLAY_MS)
-    return () => clearInterval(id)
-  }, [api, slides.length])
+    const handleScroll = () => {
+      // getBoundingClientRect().top is 0 when the top of the wrapper hits the top of the viewport
+      // If the user scrolls down, .top becomes negative.
+      const rect = el.getBoundingClientRect()
+      
+      // Distance scrolled into the hero section
+      const scrolledIntoHero = -rect.top
+      const viewportHeight = window.innerHeight
+      
+      // Number of viewports we have scrolled into the hero
+      // Example: if we scrolled 1.5 viewports, we should be on slide index 1.
+      const calculatedIndex = Math.floor(scrolledIntoHero / viewportHeight)
+      
+      // Clamp the index safely between 0 and the final slide
+      const safeIndex = Math.max(0, Math.min(slides.length - 1, calculatedIndex))
+      
+      if (safeIndex !== currentRef.current) {
+        currentRef.current = safeIndex
+        setCurrent(safeIndex)
+      }
+    }
 
-  const scrollToContent = () => {
-    const hero = document.getElementById("home")
-    if (hero) window.scrollTo({ top: hero.offsetTop + hero.offsetHeight, behavior: "smooth" })
-  }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    handleScroll() // Initialize in case we started mid-page
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+    }
+  }, [slides.length])
+
+  const slide = slides[current]
 
   return (
-    <section id="home" className={`relative h-screen w-full overflow-hidden bg-black ${styles.root}`}>
-      <Carousel setApi={setApi} opts={{ loop: true }} className="h-full w-full">
-        <CarouselContent className="ml-0 h-full">
-          {slides.map((slide, index) => (
-            <CarouselItem key={index} className="relative h-full w-full pl-0">
-              {/* Desktop image (16:9) — hidden on mobile when mobileUrl exists */}
-              <Image
-                src={slide.url}
-                alt={slide.title}
-                fill
-                priority={index === 0}
-                draggable={false}
-                className={`object-cover ${index === current ? styles.kenBurns : ""} ${slide.mobileUrl ? "hidden sm:block" : ""}`}
-              />
-              {/* Mobile image (9:16) — shown only on small screens */}
-              {slide.mobileUrl && (
-                <Image
-                  src={slide.mobileUrl}
-                  alt={slide.title}
-                  fill
-                  priority={index === 0}
-                  draggable={false}
-                  className={`object-cover block sm:hidden ${index === current ? styles.kenBurns : ""}`}
-                />
-              )}
-              <div className={styles.overlay} />
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4 text-white">
-                {/* Every slide lives in the DOM at once (Embla translates, it does not
-                    unmount), so only the first slide's title may be an <h1> — the rest
-                    render identically but as plain text to keep one h1 per page. */}
-                {index === 0 ? (
-                  <h1 className={HERO_TITLE_CLASS}>{slide.title}</h1>
-                ) : (
-                  <p className={HERO_TITLE_CLASS}>{slide.title}</p>
-                )}
-                <p className="mt-4 font-sans text-base sm:text-lg text-white/85 max-w-xl">
-                  {slide.subtitle}
-                </p>
-                <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full sm:w-auto px-4 sm:px-0">
-                  <Button asChild size="lg" className="w-full sm:w-auto">
-                    <Link href={slide.ctaPrimaryHref ?? "/products"}>{slide.ctaPrimaryText ?? "Shop Now"}</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    size="lg"
-                    variant="ghost"
-                    className="w-full sm:w-auto text-white hover:text-white hover:bg-white/10"
-                  >
-                    <Link href={slide.ctaSecondaryHref ?? "/about-us"}>{slide.ctaSecondaryText ?? "Our Story"}</Link>
-                  </Button>
-                </div>
-                {trustFeatures.length > 0 && (
-                  <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm uppercase tracking-wider text-white/80">
-                    {trustFeatures.map((feature, i) => (
-                      <span key={feature.title} className="flex items-center gap-4">
-                        {i > 0 && <span className="text-white/40">·</span>}
-                        {feature.title}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
-      <button
-        onClick={scrollToContent}
-        className={styles.scrollArrow}
-        aria-label="Scroll to content"
+    <section
+      id="home"
+      ref={sectionRef}
+      // The wrapper height determines how long the hero sticks
+      // 1 slide = 100vh. N slides = N * 100vh.
+      style={{ height: `${slides.length * 100}vh`, width: "100%", background: "#0a0400" }}
+    >
+      <div 
+        className={styles.root}
+        // The actual visual hero remains pinned to the viewport
+        style={{ position: "sticky", top: 0, height: "100vh", width: "100%", overflow: "hidden" }}
       >
-        <ChevronDown size={32} strokeWidth={1.5} />
-      </button>
+        {/* ── Slide images (crossfade) ───────────────────────────── */}
+        {slides.map((s, i) => (
+          <div key={i} className={`${styles.slide} ${i === current ? styles.slideActive : ""}`}>
+            {/* Desktop image */}
+            <Image
+              src={s.url}
+              alt={s.title}
+              fill
+              priority={i === 0}
+              draggable={false}
+              className={`object-cover ${s.mobileUrl ? "hidden sm:block" : ""} ${styles.slideImg}`}
+              sizes="100vw"
+            />
+            {/* Mobile image */}
+            {s.mobileUrl && (
+              <Image
+                src={s.mobileUrl}
+                alt={s.title}
+                fill
+                priority={i === 0}
+                draggable={false}
+                className={`object-cover block sm:hidden ${styles.slideImg}`}
+                sizes="100vw"
+              />
+            )}
+          </div>
+        ))}
+
+        {/* ── Localized text gradient (bottom only, behind text) ─── */}
+        <div className={styles.textGradient} />
+
+        {/* ── Content layer ─────────────────────────────────────── */}
+        <div className={styles.content}>
+          {/* Slide counter */}
+          {slides.length > 1 && (
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              marginBottom: "1.25rem",
+              zIndex: 10,
+              position: "relative"
+            }}>
+              <span style={{ fontSize: "0.65rem", letterSpacing: "0.2em", color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>
+                {pad(current + 1)}
+              </span>
+              <span style={{ flex: 1, maxWidth: "2.5rem", height: "1px", background: "rgba(255,255,255,0.3)" }} />
+              <span style={{ fontSize: "0.65rem", letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>
+                {pad(slides.length)}
+              </span>
+            </div>
+          )}
+
+          {/* Title & Subtitle */}
+          {/* Key on `current` forces re-animation of content on slide change */}
+          <div key={`content-${current}`} className={styles.titleIn} style={{ position: "relative", zIndex: 10 }}>
+            <h1 style={{
+              fontFamily: "var(--font-playfair), Georgia, serif",
+              fontSize: "clamp(2.5rem, 5vw, 4rem)",
+              fontWeight: 400,
+              lineHeight: 1.1,
+              letterSpacing: "-0.01em",
+              color: "white",
+              maxWidth: "800px",
+              marginBottom: "1rem",
+              textShadow: "0 2px 10px rgba(0,0,0,0.5)"
+            }}>
+              {slide?.title}
+            </h1>
+            
+            <p style={{
+              fontSize: "clamp(0.9rem, 1.5vw, 1.1rem)",
+              color: "rgba(255,255,255,0.85)",
+              maxWidth: "600px",
+              lineHeight: 1.6,
+              marginBottom: "2rem",
+              textShadow: "0 1px 4px rgba(0,0,0,0.5)"
+            }}>
+              {slide?.subtitle}
+            </p>
+
+            {/* CTAs */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
+              {slide?.ctaPrimaryHref && (
+                <Link
+                  href={slide.ctaPrimaryHref}
+                  style={{
+                    background: "rgba(251, 191, 36, 0.9)",
+                    color: "#000",
+                    padding: "0.75rem 2rem",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    transition: "background 0.2s ease",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.5rem"
+                  }}
+                  className="hover:bg-amber-400"
+                >
+                  {slide.ctaPrimaryText}
+                  <ArrowRight size={14} />
+                </Link>
+              )}
+              {slide?.ctaSecondaryHref && (
+                <Link
+                  href={slide.ctaSecondaryHref}
+                  style={{
+                    background: "transparent",
+                    color: "white",
+                    padding: "0.75rem 2rem",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    transition: "all 0.2s ease"
+                  }}
+                  className="hover:border-amber-400 hover:text-amber-400"
+                >
+                  {slide.ctaSecondaryText}
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }

@@ -38,16 +38,21 @@ export async function PUT(
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     }
 
-    const { categoryId, ...rest } = parsed.data
+    const { categoryId, faqs, ...rest } = parsed.data
     const product = await prisma.product.update({
       where: { slug },
       data: {
         ...rest,
+        faqs: faqs ?? [],
         ...(categoryId ? { categoryId } : { categoryId: null }),
       },
     })
     revalidateTag('products')
-    return NextResponse.json({ ...product, price: product.price.toNumber() })
+    return NextResponse.json({
+      ...product,
+      price:          product.price.toNumber(),
+      compareAtPrice: product.compareAtPrice?.toNumber() ?? null,
+    })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

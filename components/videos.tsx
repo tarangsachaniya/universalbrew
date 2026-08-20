@@ -4,6 +4,7 @@ import { Coffee } from "lucide-react"
 
 type VideosProps = {
   youtubeUrls?: string[]
+  backgroundColor?: string
 }
 
 function toEmbedUrl(url: string): string {
@@ -11,12 +12,12 @@ function toEmbedUrl(url: string): string {
   return match ? `https://www.youtube.com/embed/${match[1]}` : url
 }
 
-export function Videos({ youtubeUrls = [] }: VideosProps) {
+export function Videos({ youtubeUrls = [], backgroundColor }: VideosProps) {
   const urls = youtubeUrls.filter((u) => u.trim() !== "").slice(0, 3)
   if (urls.length === 0) return null
 
   return (
-    <section id="coffee" className="py-16 lg:py-24 bg-secondary/30">
+    <section id="coffee" className="py-16 lg:py-24" style={{ backgroundColor: backgroundColor || "var(--parchment, #faf8f5)" }}>
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-serif text-primary mb-4">Videos</h2>

@@ -8,28 +8,57 @@ type Props = {
 export function StaticPageLayout({ title, content }: Props) {
   return (
     <main className="min-h-screen bg-background">
-      {/* Warm header */}
-      <div className="border-b border-amber-100/60 dark:border-amber-900/20 bg-gradient-to-b from-amber-50/70 to-background dark:from-amber-950/20 dark:to-background">
-        <div className="container mx-auto px-4 max-w-3xl pt-16 pb-12 text-center">
-          <div className="flex items-center justify-center gap-3 mb-5">
-            <div className="h-px w-10 bg-primary/30" />
-            <Coffee className="h-4 w-4 text-primary/50" />
-            <div className="h-px w-10 bg-primary/30" />
-          </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-foreground">{title}</h1>
+      {/* ── Premium Editorial Header ─────────────────────────── */}
+      <div 
+        style={{
+          borderBottom: "1px solid var(--border)",
+          paddingTop: "4rem",
+          paddingBottom: "3rem",
+        }}
+      >
+        <div style={{ maxWidth: "800px", margin: "0 auto", padding: "0 2rem" }}>
+          <p style={{
+            fontSize: "0.62rem",
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: "var(--primary)",
+            fontWeight: 600,
+            marginBottom: "1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}>
+            · Information <Coffee size={12} style={{ opacity: 0.8 }} />
+          </p>
+          <h1 style={{
+            fontFamily: "var(--font-serif), Georgia, serif",
+            fontSize: "clamp(2.25rem, 4vw, 3.5rem)",
+            fontWeight: 400,
+            letterSpacing: "-0.01em",
+            lineHeight: 1.1,
+            color: "var(--foreground)",
+            margin: 0,
+          }}>
+            {title}
+          </h1>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 max-w-3xl py-12">
+      {/* ── Content ─────────────────────────────────────────── */}
+      <div style={{ maxWidth: "800px", margin: "0 auto", padding: "4rem 2rem 6rem" }}>
         <div
           className="prose prose-sm md:prose-base prose-amber max-w-none
-            prose-headings:font-serif prose-headings:text-foreground
-            prose-p:text-muted-foreground prose-p:leading-relaxed
+            prose-headings:font-serif prose-headings:text-foreground prose-headings:font-normal prose-headings:tracking-tight
+            prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-6
             prose-li:text-muted-foreground prose-li:leading-relaxed
-            prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-            prose-strong:text-foreground
+            prose-a:text-primary prose-a:underline hover:prose-a:opacity-80
+            prose-strong:text-foreground prose-strong:font-semibold
             prose-hr:border-border/50"
+          style={{
+            fontSize: "0.95rem",
+            lineHeight: 1.75,
+            color: "var(--muted-foreground)",
+          }}
           dangerouslySetInnerHTML={{ __html: content ?? "" }}
         />
       </div>
