@@ -1,11 +1,16 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Coffee, ChevronLeft, ChevronRight } from "lucide-react"
+import { Coffee } from "lucide-react"
 import { ProductCard } from "@/components/product-card"
-
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel"
 
 type ProductItem = {
   id: string
@@ -27,15 +32,7 @@ type ProductsProps = {
 }
 
 export function Products({ products }: ProductsProps) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const itemsPerPage = 5
   const list = products ?? []
-  const maxIndex = Math.max(0, list.length - itemsPerPage)
-
-  const handlePrev = () => setCurrentIndex((prev) => Math.max(0, prev - 1))
-  const handleNext = () => setCurrentIndex((prev) => Math.min(maxIndex, prev + 1))
-
-  const visible = list.slice(currentIndex, currentIndex + itemsPerPage)
 
   return (
     <section id="shop" className="py-16 lg:py-24 bg-background">
@@ -61,30 +58,19 @@ export function Products({ products }: ProductsProps) {
         {list.length === 0 ? (
           <p className="text-center text-muted-foreground">No featured products yet.</p>
         ) : (
-          <div className="relative">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-              {visible.map((product) => (
-                <ProductCard key={product.id} {...product} />
+          <Carousel opts={{ align: "start" }} className="w-full">
+            <CarouselContent>
+              {list.map((product) => (
+                <CarouselItem key={product.id} className="basis-1/2 md:basis-1/3 lg:basis-1/5">
+                  <ProductCard {...product} />
+                </CarouselItem>
               ))}
-            </div>
-
+            </CarouselContent>
             <div className="flex justify-center items-center gap-4 mt-8">
-              <button
-                onClick={handlePrev}
-                disabled={currentIndex === 0}
-                className="p-2 rounded-full border border-border hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronLeft className="h-5 w-5 text-foreground" />
-              </button>
-              <button
-                onClick={handleNext}
-                disabled={currentIndex >= maxIndex}
-                className="p-2 rounded-full border border-border hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronRight className="h-5 w-5 text-foreground" />
-              </button>
+              <CarouselPrevious className="static translate-x-0 translate-y-0" />
+              <CarouselNext className="static translate-x-0 translate-y-0" />
             </div>
-          </div>
+          </Carousel>
         )}
 
         <div className="text-center mt-8">
