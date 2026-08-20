@@ -64,20 +64,14 @@ export function NavBar({ categories: initialCategories = [], tickerVisible = fal
   }, [mobileOpen])
 
   const isHome = pathname === "/"
-  const transparent = isHome && !scrolled
+  const hideNavbar = isHome && !scrolled
 
   /* ── Style tokens ───────────────────────────────────────────── */
-  const navBg = transparent
-    ? "bg-transparent border-transparent"
-    : "bg-[rgba(12,5,0,0.88)] backdrop-blur-md border-white/10"
+  const navBg = "bg-[rgba(12,5,0,0.88)] backdrop-blur-md border-white/10"
 
-  const linkCls = `text-[0.62rem] font-semibold tracking-[0.2em] uppercase transition-colors duration-200 ${
-    transparent ? "text-white/80 hover:text-white" : "text-white/75 hover:text-amber-200"
-  }`
+  const linkCls = `text-[0.62rem] font-semibold tracking-[0.2em] uppercase transition-colors duration-200 text-white/75 hover:text-amber-200`
 
-  const iconCls = `transition-colors duration-200 cursor-pointer ${
-    transparent ? "text-white/80 hover:text-white" : "text-white/75 hover:text-amber-200"
-  }`
+  const iconCls = `transition-colors duration-200 cursor-pointer text-white/75 hover:text-amber-200`
 
   return (
     <>
@@ -93,8 +87,11 @@ export function NavBar({ categories: initialCategories = [], tickerVisible = fal
           left: 0,
           right: 0,
           zIndex: 50,
-          transition: "background 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease",
+          transition: "background 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease, transform 0.35s ease, opacity 0.35s ease",
           borderBottom: "1px solid",
+          transform: hideNavbar ? "translateY(-100%)" : "translateY(0)",
+          opacity: hideNavbar ? 0 : 1,
+          pointerEvents: hideNavbar ? "none" : "auto",
         }}
         className={navBg}
       >
@@ -111,7 +108,7 @@ export function NavBar({ categories: initialCategories = [], tickerVisible = fal
         >
           {/* ── Logo ────────────────────────────────────────────── */}
           <Link href={homeHref} style={{ textDecoration: "none", flexShrink: 0 }} aria-label="Universal Brew home">
-            <Logo variant="full" className={`h-8 w-auto transition-colors duration-200 ${transparent ? "text-white" : "text-amber-100"}`} />
+            <Logo variant="full" className="h-8 w-auto transition-colors duration-200 text-amber-100" />
           </Link>
 
           {/* ── Centre links (desktop) ───────────────────────────── */}

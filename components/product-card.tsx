@@ -158,16 +158,17 @@ export function ProductCard({
         >
           <h3 style={{
             fontFamily: "var(--font-playfair), Georgia, serif",
-            fontSize: "1rem",
-            fontWeight: 400,
-            lineHeight: 1.3,
+            fontSize: "1.15rem",
+            fontWeight: 500,
+            lineHeight: 1.35,
             color: "var(--foreground)",
-            letterSpacing: "-0.005em",
+            letterSpacing: "0.01em",
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
-          }}>
+            transition: "color 0.2s ease"
+          }} className="group-hover:text-amber-700 dark:group-hover:text-amber-400">
             {name}
           </h3>
         </Link>
@@ -189,8 +190,9 @@ export function ProductCard({
         {/* Price */}
         <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginTop: "auto", paddingTop: "0.35rem" }}>
           <span style={{
-            fontSize: "0.95rem",
-            fontWeight: 600,
+            fontSize: "1.05rem",
+            fontWeight: 500,
+            letterSpacing: "0.02em",
             color: "var(--foreground)",
           }}>
             {formatPrice(price)}

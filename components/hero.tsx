@@ -179,25 +179,6 @@ export function Hero({ data }: HeroProps) {
 
         {/* ── Content layer ─────────────────────────────────────── */}
         <div className={styles.content}>
-          {/* Slide counter */}
-          {slides.length > 1 && (
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              marginBottom: "1.25rem",
-              zIndex: 10,
-              position: "relative"
-            }}>
-              <span style={{ fontSize: "0.65rem", letterSpacing: "0.2em", color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>
-                {pad(current + 1)}
-              </span>
-              <span style={{ flex: 1, maxWidth: "2.5rem", height: "1px", background: "rgba(255,255,255,0.3)" }} />
-              <span style={{ fontSize: "0.65rem", letterSpacing: "0.2em", color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>
-                {pad(slides.length)}
-              </span>
-            </div>
-          )}
 
           {/* Title & Subtitle */}
           {/* Key on `current` forces re-animation of content on slide change */}
