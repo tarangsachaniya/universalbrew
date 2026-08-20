@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && node -e \"if(process.env.VERCEL_ENV!=='production'){console.log('[build] VERCEL_ENV is not production - skipping prisma migrate deploy and db:seed');process.exit(0)}require('child_process').execSync('prisma migrate deploy && npm run db:seed',{stdio:'inherit'})\" && next build",
+    "build": "prisma generate && prisma migrate deploy && npm run db:seed && next build",
     "start": "next start",
     "postinstall": "prisma generate",
     "lint": "eslint .",
