@@ -3,22 +3,46 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Coffee, MapPin, Phone, Mail } from "lucide-react"
+import { SectionHeading } from "@/components/section-heading"
+import { MapPin, Phone, Mail, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
-export function Contact() {
+export function NewsletterSignup() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
   })
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    console.log("Sample taster form submitted:", formData)
-    alert("Thank you! We will send you a sample taster soon.")
-    setFormData({ name: "", email: "", phone: "", address: "" })
+    setLoading(true)
+    try {
+      const res = await fetch('/api/sample-taster', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        const message =
+          typeof data?.error === "string"
+            ? data.error
+            : "Please check your details and try again."
+        toast.error(message)
+        return
+      }
+
+      toast.success("Thanks! We'll send your sample taster soon.")
+      setFormData({ name: "", email: "", phone: "", address: "" })
+    } catch {
+      toast.error("Something went wrong. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -27,18 +51,7 @@ export function Contact() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Sample Taster Form */}
           <div>
-            <h2 className="text-3xl md:text-4xl font-serif mb-4">
-              Sample Taster
-            </h2>
-            <div className="flex items-center gap-2 mb-6">
-              <div className="h-px w-12 bg-primary-foreground/30" />
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Coffee key={i} className="h-3 w-3 text-primary-foreground/70" />
-                ))}
-              </div>
-              <div className="h-px w-12 bg-primary-foreground/30" />
-            </div>
+            <SectionHeading title="Sample Taster" align="left" variant="inverted" />
             <p className="text-primary-foreground/80 mb-8">
               Provide your details and have our coffee samples at your doorstep.
             </p>
@@ -81,27 +94,18 @@ export function Contact() {
               <Button
                 type="submit"
                 variant="outline"
+                disabled={loading}
                 className="border-primary-foreground text-primary-foreground bg-transparent hover:bg-primary-foreground hover:text-primary"
               >
-                SUBMIT
+                {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                {loading ? "SUBMITTING…" : "SUBMIT"}
               </Button>
             </form>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h2 className="text-3xl md:text-4xl font-serif mb-4">
-              Connect Us
-            </h2>
-            <div className="flex items-center gap-2 mb-6">
-              <div className="h-px w-12 bg-primary-foreground/30" />
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Coffee key={i} className="h-3 w-3 text-primary-foreground/70" />
-                ))}
-              </div>
-              <div className="h-px w-12 bg-primary-foreground/30" />
-            </div>
+            <SectionHeading title="Connect Us" align="left" variant="inverted" />
 
             {/* Office */}
             <div className="mb-8">

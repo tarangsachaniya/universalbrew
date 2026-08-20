@@ -3,6 +3,7 @@ import { DM_Sans, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SessionProvider } from 'next-auth/react'
 import { CartProvider } from '@/lib/cart-context'
+import { Toaster } from '@/components/ui/sonner'
 import { auth } from '@/lib/auth'
 import './globals.css'
 
@@ -101,6 +102,7 @@ export default async function RootLayout({
             {children}
           </CartProvider>
         </SessionProvider>
+        <Toaster />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
